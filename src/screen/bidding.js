@@ -1,94 +1,237 @@
-import React , {useState}from 'react';
-import {SafeAreaView, View, Text, Image, TouchableOpacity, Dimensions, TextInput,Modal } from 'react-native';
-
+import React, {useState} from 'react';
+import {
+  SafeAreaView,
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  Dimensions,
+  TextInput,
+  Modal,
+  Alert,
+} from 'react-native';
+import {useSelector} from 'react-redux';
 //패키지
-
 import Icon from 'react-native-vector-icons/Ionicons';
-
 //컴포넌트
 import Header, {DetailHead} from '../components/header';
 import Footer from '../components/footer';
 import {DefaultPicker} from '../components/Select';
 import Product from '../components/product';
+import API_CALL from '../ApiCall';
 
 export const Width = Dimensions.get('window').width / 4;
 
-const payment =[
-  {label:'신용카드' ,  value:'신용카드'},
-  {label:'신용카드' ,  value:'신용카드'},
-  {label:'신용카드' ,  value:'신용카드'},
-]
+const payment = [
+  {label: '직거래', value: '직거래'},
+  {label: '택배거래', value: '택배거래'},
+  {label: '안전거래', value: '안전거래'},
+];
 
-const Bidding = ({navigation}) => {
-  const [isvisible, setIsvisible] = useState(false)
-  return(
-    <SafeAreaView style={{flex:1,backgroundColor:"#fff"}}>
-      <DetailHead title="입찰하기"/>
-      <View style={{padding:20,flex:1}}>
-        <View style={{paddingBottom:10,marginBottom:20,borderBottomWidth:1,borderBottomColor:'#eee'}}>
-          <Product/>
+const Bidding = props => {
+  const {
+    route: {params},
+  } = props;
+  const {member} = useSelector(state => state.login);
+  const [isvisible, setIsvisible] = useState(false);
+  const [mt_idx, setMt_idx] = useState(member.mt_idx);
+  const [idx, setIdx] = useState(params.idx);
+  const [bidprice, setBidprice] = useState(0);
+  const [pt_deal_type, setPt_deal_type] = useState('');
+  const pressbidding = async () => {
+    try {
+      const form = new FormData();
+      if (parseInt(bidprice) <= 0) return Alert.alert('bidprice');
+      if (!pt_deal_type) return Alert.alert('pt_deal_type');
+      form.append('method', 'proc_product_tender');
+      form.append('mt_idx', mt_idx);
+      form.append('pt_idx', idx);
+      form.append('pt_deal_type', pt_deal_type);
+      form.append('td_price', bidprice);
+      const url = 'http://dmonster1566.cafe24.com';
+      const path = '/json/proc_json.php';
+
+      const api = await API_CALL(url + path, form, false);
+      const {
+        data: {result, message},
+      } = api;
+      if (result === '0') return Alert.alert('no result', message);
+      if (result === '1') {
+        // Alert.alert('성공', message);
+        props.navigation.navigate('BidFinish', {
+          idx,
+          pt_title: params.pt_title,
+          pt_selling_edate: params.pt_selling_edate,
+          dday: params.dday,
+          pt_image1: params.pt_image1,
+          bidprice,
+        });
+      }
+    } catch {
+      console.log(e);
+      Alert.alert('Catch!');
+    }
+  };
+
+  return (
+    <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
+      <DetailHead title="입찰하기" />
+      <View style={{padding: 20, flex: 1}}>
+        <View
+          style={{
+            paddingBottom: 10,
+            marginBottom: 20,
+            borderBottomWidth: 1,
+            borderBottomColor: '#eee',
+          }}>
+          <Product {...props} />
         </View>
-        <View style={{borderWidth:1,borderColor:'#eee',borderRadius:10}}>
-          <Text style={{padding:12,borderBottomWidth:1,borderBottomColor:'#eee',fontSize:16,fontFamily:'NotoSansKR-Bold',lineHeight:20,}}>입찰정보</Text>
-          <View style={{padding:12,}}>
-            <Text style={{paddingBottom:6,fontSize:13,fontFamily:'NotoSansKR-Medium',lineHeight:16,}}>입찰금액</Text>
+        <View style={{borderWidth: 1, borderColor: '#eee', borderRadius: 10}}>
+          <Text
+            style={{
+              padding: 12,
+              borderBottomWidth: 1,
+              borderBottomColor: '#eee',
+              fontSize: 16,
+              fontFamily: 'NotoSansKR-Bold',
+              lineHeight: 20,
+            }}>
+            입찰정보
+          </Text>
+          <View style={{padding: 12}}>
+            <Text
+              style={{
+                paddingBottom: 6,
+                fontSize: 13,
+                fontFamily: 'NotoSansKR-Medium',
+                lineHeight: 16,
+              }}>
+              입찰금액
+            </Text>
             <TextInput
-              style={{borderWidth:1,borderColor:'#eee',borderRadius:6,lineHeight:20,height:30,paddingVertical:0,paddingHorizontal:10,marginBottom:12,fontFamily:'NotoSansKR-Medium',fontSize:12,}}
+              style={{
+                borderWidth: 1,
+                borderColor: '#eee',
+                borderRadius: 6,
+                lineHeight: 20,
+                height: 30,
+                paddingVertical: 0,
+                paddingHorizontal: 10,
+                marginBottom: 12,
+                fontFamily: 'NotoSansKR-Medium',
+                fontSize: 12,
+                color: '#000',
+              }}
               placeholder="210,000원"
               placeholderTextColor="#C9C9C9"
               keyboardType="numeric"
+              onChangeText={text => setBidprice(text)}
+            />
+            <Text
+              style={{
+                paddingBottom: 6,
+                fontSize: 13,
+                fontFamily: 'NotoSansKR-Medium',
+                lineHeight: 16,
+              }}>
+              거래유형
+            </Text>
+            <View style={{width: 150}}>
+              <DefaultPicker
+                placeholder="거래방식 선택"
+                picker={payment}
+                onChange={setPt_deal_type}
               />
-            <Text style={{paddingBottom:6,fontSize:13,fontFamily:'NotoSansKR-Medium',lineHeight:16,}}>거래유형</Text>
-            <View style={{width:150,}}>
-              <DefaultPicker placeholder="거래방식 선택" picker={payment}/>
             </View>
           </View>
-          <View style={{flexDirection: 'row',backgroundColor: '#477DD1',borderBottomLeftRadius:10,borderBottomRightRadius:10,}}>
-            <TouchableOpacity style={{width:'50%',height:57,justifyContent: 'center',alignItems: 'center',borderRightWidth:1,borderRightColor:'#fff',}}>
-              <Text style={{color:'#fff',fontSize:16,fontFamily:'NotoSansKR-Bold',lineHeight:20,}}>취소</Text>
+          <View
+            style={{
+              flexDirection: 'row',
+              backgroundColor: '#477DD1',
+              borderBottomLeftRadius: 10,
+              borderBottomRightRadius: 10,
+            }}>
+            <TouchableOpacity
+              style={{
+                width: '50%',
+                height: 57,
+                justifyContent: 'center',
+                alignItems: 'center',
+                borderRightWidth: 1,
+                borderRightColor: '#fff',
+              }}>
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 16,
+                  fontFamily: 'NotoSansKR-Bold',
+                  lineHeight: 20,
+                }}>
+                취소
+              </Text>
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={()=> setIsvisible(true)}
-              style={{width:'50%',height:57,justifyContent: 'center',alignItems: 'center',}}>
-              <Text style={{color:'#fff',fontSize:16,fontFamily:'NotoSansKR-Bold',lineHeight:20,}}>입찰하기</Text>
+              onPress={() => setIsvisible(true)}
+              style={{
+                width: '50%',
+                height: 57,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+              onPress={() => pressbidding()}>
+              <Text
+                style={{
+                  color: '#fff',
+                  fontSize: 16,
+                  fontFamily: 'NotoSansKR-Bold',
+                  lineHeight: 20,
+                }}>
+                입찰하기
+              </Text>
             </TouchableOpacity>
           </View>
         </View>
       </View>
-      <Modal 
-      visible={isvisible}
-      transparent={true}
-      style={{flex:1}}
-      animationType="fade"
-      onRequestClose={() =>  setIsvisible(false)}
-      >
-        <View style={{
-          position:'absolute',
-          top:0,left:0,bottom:0,right:0,
-          backgroundColor:'rgba(0,0,0,0.7)',
-          justifyContent:'flex-start',
-        }}>
-          <View style={{
-            paddingVertical:30,
-            backgroundColor:'#fff',
-            justifyContent:'center',
-            alignItems:'flex-start',
-            paddingHorizontal:20,
-            flexDirection:'row',
+      <Modal
+        visible={isvisible}
+        transparent={true}
+        style={{flex: 1}}
+        animationType="fade"
+        onRequestClose={() => setIsvisible(false)}>
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            bottom: 0,
+            right: 0,
+            backgroundColor: 'rgba(0,0,0,0.7)',
+            justifyContent: 'flex-start',
           }}>
-            <Icon name="alert-circle" size={20} color="#447DD1"/>
-            <Text style={{
-              fontSize:13,
-              fontFamily:'NotoSansKR-Regular',
-              lineHeight:20,
-              paddingLeft:10,
-
-            }}>상품 주문, 입찰을 하시기 위해 휴대폰 인증이 우선시 되어야 합니다.</Text>
+          <View
+            style={{
+              paddingVertical: 30,
+              backgroundColor: '#fff',
+              justifyContent: 'center',
+              alignItems: 'flex-start',
+              paddingHorizontal: 20,
+              flexDirection: 'row',
+            }}>
+            <Icon name="alert-circle" size={20} color="#447DD1" />
+            <Text
+              style={{
+                fontSize: 13,
+                fontFamily: 'NotoSansKR-Regular',
+                lineHeight: 20,
+                paddingLeft: 10,
+              }}>
+              상품 주문, 입찰을 하시기 위해 휴대폰 인증이 우선시 되어야 합니다.
+            </Text>
           </View>
         </View>
       </Modal>
     </SafeAreaView>
-  )
-}
+  );
+};
 
 export default Bidding;
