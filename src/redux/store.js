@@ -1,9 +1,7 @@
-import {createStore} from 'redux'
+import {createStore} from 'redux';
 import rootReducer from './reducer/rootReducer';
 
+const store = createStore(rootReducer);
+// console.log(store.getState())
 
-const store =createStore( rootReducer)
-console.log(store.getState())
-
-export default store
-
+export default store;
