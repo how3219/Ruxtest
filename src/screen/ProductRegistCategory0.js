@@ -29,7 +29,6 @@ const ProductRegistCategory = ({navigation}) => {
         const path = '/json/proc_json.php'
 
         const api = await API_CALL(url+path, form, true)
-        console.log(api)
         const { data : { method, result, message, count, item} } = api;
 
         setItem(item)
