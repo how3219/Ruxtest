@@ -43,7 +43,7 @@ const Selector = () => {
   );
 };
 
-export const DefaultPicker = ({picker, placeholder, onChange}) => {
+export const DefaultPicker = ({picker, placeholder, onChange,value}) => {
   return (
     <DropDownPicker
       items={picker}
@@ -72,7 +72,7 @@ export const DefaultPicker = ({picker, placeholder, onChange}) => {
         <Image width={20} source={require('../images/select_box_arr.png')} />
       )}
       zIndex={50000}
-      defaultNull
+      defaultValue={value?value:null}
       onChangeItem={item => onChange(item.value)}
     />
   );
