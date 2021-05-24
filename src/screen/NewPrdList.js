@@ -104,7 +104,6 @@ const NewPrdList = props => {
       const {
         data: {item, result},
       } = api;
-      console.log(5555555555555, item, result);
       if (result === '0') return Alert.alert('제목', '상품이 없습니다.');
       if (result === '1') {
         // const savePrd = {
