@@ -1,13 +1,29 @@
-import React from 'react';
+import React,{useEffect,useState} from 'react';
 import {SafeAreaView, View, ScrollView, TouchableOpacity, Text, StyleSheet} from 'react-native';
-
+import API_CALL from '../ApiCall';
 import Header, {DetailHead} from '../components/header';
 import Footer from '../components/footer';
 import Product from '../components/product';
-
 import Icon from 'react-native-vector-icons/Ionicons';
-
-const EstCheck = ({navigation}) => {
+const url = 'http://dmonster1566.cafe24.com'
+const path = '/json/proc_json.php'
+const EstCheck = (props) => {
+  const {route:{params}} = props
+  const [estitem,setEstItem] = useState([])
+  useEffect(() => {
+    getEstCheck()
+  }, [])
+  const getEstCheck = async() => {
+    const form = new FormData;
+    form.append('method','proc_my_estimate_view')
+    form.append('idx',params.idx)
+    const api = await API_CALL(url+path, form, true)
+    const {data:{result,item,message}} = api;
+    if(result === "0") return Alert.alert("EstCheck",message)
+    if(result === "1"){
+      setEstItem(item[0])
+    }
+  }
   return(
     <SafeAreaView style={{flex:1,backgroundColor: '#fff'}}>
       <DetailHead title="견적서 확인"/>
@@ -15,7 +31,7 @@ const EstCheck = ({navigation}) => {
       {/* 내 견적*/}
         <View style={{padding:20,}}>
           <View style={{paddingBottom:10,marginBottom:15,borderBottomWidth:1,borderBottomColor:'#eee'}}>
-            <Product/>
+            <Product {...props}/>
           </View>
           <View style={{borderWidth:1,borderColor:'#eee',borderRadius:10,marginBottom:20,}}>
             <Text style={{borderBottomWidth:1,borderBottomColor:'#eee',padding:12,fontSize:16,fontFamily:'NotoSansKR-Bold',lineHeight:20, }}>
@@ -24,19 +40,19 @@ const EstCheck = ({navigation}) => {
             <View style={{padding:12,}}>
              <View style={styles.textbox}>
                 <Text style={styles.texta}>입찰금액</Text>
-                <Text style={styles.texta}>420,000</Text>
+                <Text style={styles.texta}>{estitem.td_price}</Text>
               </View>
               <View style={styles.textbox}>
                 <Text style={styles.texta}>거래유형</Text>
-                <Text style={styles.textb}>직거래</Text>
+                <Text style={styles.textb}>{estitem.pt_deal_type}</Text>
               </View>
               <View style={styles.textbox}>
                 <Text style={styles.texta}>직거래 가능 지역</Text>
-                <Text style={styles.textb}>서울시 강남구</Text>
+                <Text style={styles.textb}>{estitem.pt_direct_sigugun}</Text>
               </View>
               <View style={{flex:1,flexDirection:'row',justifyContent:'space-between',alignItems: 'center'}}>
                 <Text style={styles.texta}>입찰입시</Text>
-                <Text style={styles.textb}>2021.01.16 11:23</Text>
+                <Text style={styles.textb}>{estitem.pt_selling_edate}</Text>
               </View>
             </View>
           </View>
