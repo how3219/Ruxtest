@@ -1,8 +1,9 @@
-import React, {useState} from 'react';
-import {SafeAreaView, ScrollView, View, Text, TouchableOpacity, StyleSheet,TextInput,Dimensions, Image, Modal} from 'react-native';
+import React, {useState,useEffect} from 'react';
+import {SafeAreaView, ScrollView, View, Text, TouchableOpacity, StyleSheet,TextInput,Dimensions, Image, Modal, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import {DefaultPicker} from '../components/Select';
-
+import {useSelector} from 'react-redux';
+import API_CALL from '../ApiCall';
 const Width = Dimensions.get('window').width;
 const PADDING = 20;
 const StatWidth = (Width - PADDING * 2 - 40) / 3;
@@ -69,9 +70,76 @@ export const getYears = () => {
 
 
 
-const ReigsteredProductInfo = ({navigation}) => {
+const ReigsteredProductInfo = (props) => {
+    const {route:{params},navigation} = props
+    console.log(params)
+    const {member} = useSelector(state => state.login)
     const [pakage, setPakage] = useState(pakageitem);
     const [deal, setDeal] = useState(dealtype);
+    const [selectmonth, setSelectMonth] = useState([]);
+    const [selectyear, setSelectYear] = useState([]);
+    const [selectbrand, setSelectBrand] = useState([]);
+    const [directsi, setdirectsi] = useState('')
+    const [directgugun, setdirectgugun] = useState('');
+
+    const defaultsetting = () => {
+        let year = new Date().getFullYear();
+        let year_option = [];
+        let month_option = [];        
+        for (let i = 2000; i <= year; i++) {
+          year_option[i-2000] = { key: i, label: i + '년', value: i };
+        }    
+        for (let i = 1; i <= 12; i++) {
+          month_option[i-1] = { key: i, label: i + '월', value: i };
+        }
+        setSelectMonth(month_option);
+        setSelectYear(year_option);
+      };
+    const getarea = async() => {
+        try{
+            const form = new FormData;
+            form.append('method','proc_pt_direct_sigugun')
+            form.append('pt_direct_si',directsi)
+            const url = 'http://dmonster1566.cafe24.com';
+            const path = '/json/proc_json.php';
+
+            const api = await API_CALL(url + path, form, false);
+            const {data:{result,item}} = api;
+            if(result==='0'){Alert.alert('직거래 가능지역 result')}
+            else if(result==='1'){
+                let gugun = item.map((value)=>{
+                return {label:value.pt_direct_gugun,value:value.pt_direct_gugun}
+                })
+                setCityPicker(gugun)
+            }
+        }catch(e){
+        console.log(e)
+        }
+    }
+    const getDetailItem = async() => {
+        const form = new FormData;
+        form.append('method','proc_product_detail')
+        form.append('mt_idx',member.mt_id)
+        form.append('mt_idx',params.idx)
+        const url = 'http://dmonster1566.cafe24.com';
+        const path = '/json/proc_json.php';
+        const api = await API_CALL(url + path, form, false);
+        const {data:{result,item}} = api;
+        if(result==='0'){Alert.alert('등록 수정 result')}
+        else if(result==='1'){  
+            
+        }
+    }
+    useEffect(() => {
+        if(directsi){
+          getarea()
+        }
+      }, [directsi]);
+      useEffect(() => {
+        defaultsetting();    
+        getDetailItem();
+      }, []);
+      
     const [data_1,setData_1] = useState([
         {
             id:1,

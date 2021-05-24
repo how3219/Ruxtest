@@ -42,7 +42,7 @@ const RegisteredProduct = ({navigation}) => {
                 style={{flex:1}}
                 data={enrollment}
                 renderItem={({item, index}) => <RPlist item={item}/>}
-                keyExtractor={(item) => `${item.id}`}
+                keyExtractor={(item) => `${item.idx}`}
                 numColumns={2}
                 />
             </View>
@@ -52,7 +52,6 @@ const RegisteredProduct = ({navigation}) => {
 
 const RPlist = ({item : RPitem}) => {
     const navigation = useNavigation();
-    console.log(RPitem)
     return(
         <TouchableOpacity
         onPress={() => navigation.navigate('ReigsteredProductInfo',{

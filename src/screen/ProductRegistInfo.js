@@ -52,8 +52,8 @@ const cityPicker0 = [
 
 
 const deliveryPicker = [
-  { label: '유료 배송', value: '유료 배송' },
-  { label: '무료 배송', value: '무료 배송' },
+  { label: '유료 배송', value: 'Y' },
+  { label: '무료 배송', value: 'N' },
 ];
 
 const pakageitem = {
@@ -251,7 +251,6 @@ const ProductRegistInfo = props => {
       } else if (response.customButton) {
         console.log('User tapped custom button: ', response.customButton);
       } else {
-        console.log(img1)
         switch (id) {
           case 1:
             setImg1({
@@ -350,8 +349,11 @@ const ProductRegistInfo = props => {
     const url = 'http://dmonster1566.cafe24.com';
     const path = '/json/proc_json.php';
     const api = await API_CALL(url + path, form, true);
-    const {data} = api;
-    console.log(data)
+    const {data:{result,message}} = api;
+    if(result==='0') Alert.alert('내 상품 등록',message)
+    else if(result==='1'){
+      console.log('gggggggggggg')
+    }
     
   }
   return (
