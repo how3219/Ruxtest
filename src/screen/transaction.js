@@ -8,17 +8,19 @@ import {
   Dimensions,
   TextInput,
   Image,
+  Alert,
 } from 'react-native';
 import {useSelector} from 'react-redux';
 import {DefaultHead} from '../components/header';
 import Icon from 'react-native-vector-icons/Ionicons';
 import TransList from '../components/transitem';
 import API_CALL from '../ApiCall';
+import { useIsFocused  } from '@react-navigation/native';
 export const Width = Dimensions.get('window').width;
 export const Threebox = Width / 3 - 17;
 export const Box = Width / 2 - 22;
 
-const Transaction = () => {
+const Transaction = (props) => {
   const [trans, setTrans] = useState([
     {
       id: '1',
@@ -36,37 +38,46 @@ const Transaction = () => {
       state: false,
     },
   ]);
-
+  // useEffect(() => {
+  //   if(isFocused){
+  //     firstgetdeallist();
+  //   }
+  // }, [isFocused])
   //1-입찰중 2-거래중 3-거래완료
-  const [dealtype, setDealtype] = useState('2');
+  const [dealtype, setDealtype] = useState('1');
   const [transid, setTransId] = useState('1');
+  const [itemlist,setItemlist] = useState([])
   const {member} = useSelector(state => state.login);
   useEffect(() => {
     getdeallist();
+   
   }, [dealtype, transid]);
   const getdeallist = async () => {
     // console.log(id);
-    console.log(979797, transid);
-    console.log(5454554, dealtype);
-
     let form = new FormData();
     if (transid === '1') {
       form.append('method', 'proc_my_deal_buy');
-      form.append('mt_idx', member.mt_id);
+      form.append('mt_idx', member.mt_idx);
       form.append('td_status', dealtype);
     } else if (transid === '2') {
       form.append('method', 'proc_my_deal_sell');
-      form.append('mt_idx', member.mt_id);
+      form.append('mt_idx', member.mt_idx);
       form.append('td_status', dealtype);
     } else if (transid === '3') {
       form.append('method', 'proc_my_deal_accounts');
-      form.append('mt_idx', member.mt_id);
+      form.append('mt_idx', member.mt_idx);
     }
     const url = 'http://dmonster1566.cafe24.com';
     const path = '/json/proc_json.php';
     const api = await API_CALL(url + path, form, true);
-    const {data} = api;
-    console.log(data);
+    const {data:{result,item,message}} = api;
+    if(result==='0')Alert.alert('거래 내역',message)
+    else if(result==='1'){
+      console.log(5555555,item)
+        setItemlist([])
+        setItemlist(item)
+    }
+    
   };
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff'}}>
@@ -99,7 +110,7 @@ const Transaction = () => {
                   }),
                 ),
                   await setTransId(element.id);
-                getdeallist();
+                
               }}
               style={{
                 width: Threebox,
@@ -196,10 +207,16 @@ const Transaction = () => {
           </TouchableOpacity>
         </View>
       </View>
-      <View style={{paddingHorizontal: 20, flex: 1}}>
-        <TransList />
-      </View>
+      {
+        itemlist&&itemlist.length>0&&
+        <View style={{paddingHorizontal: 20, flex: 1}}>
+          <TransList 
+            item={itemlist}
+            />
+        </View>
+      }
     </SafeAreaView>
+
   );
 };
 
