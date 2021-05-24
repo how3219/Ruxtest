@@ -1,12 +1,12 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState,useCallback,useEffect} from 'react';
 import {ScrollView, View, Text, Image, TouchableOpacity, FlatList, Dimensions, Alert} from 'react-native';
 import {useSelector} from 'react-redux';
-
+import { useNavigation } from '@react-navigation/native';    
 import styles from '../style/style';
 import Header, {EstHeader} from '../components/header';
 import EstList from '../components/estimateList';
 import API_CALL from '../ApiCall';
-import { useNavigation } from '@react-navigation/native';
+import { useIsFocused  } from '@react-navigation/native';
 
 export const Width = Dimensions.get('window').width;
 export const Height = Dimensions.get('window').height;
@@ -16,13 +16,14 @@ const Box = (Width - PADDING * 2 - 20) /2
 
 
 function EstimateScreen ({navigation}) {
-
+    const isFocused = useIsFocused();
     const {member} = useSelector(state => state.login)
 
     const [pt_deal_type,setPt_deal_type] = useState('')
     const [search, setSearch] = useState('')
     const [idx, setIdx] = useState('')
     const [pt_image1,setPt_image] = useState('')
+
     const [pt_title, setPt_title] = useState('')
     const [td_price, setTd_price] = useState('')
     const [dday, setDday] = useState('')
@@ -30,8 +31,10 @@ function EstimateScreen ({navigation}) {
     const [estData, setEstData] = useState([])
 
     useEffect(() => {
-        getEstData()
-    },[])
+        if(isFocused){
+            getEstData()
+        }        
+    },[isFocused])
 
     const getEstData = async() => {
         const form = new FormData()
@@ -50,28 +53,18 @@ function EstimateScreen ({navigation}) {
         const path = '/json/proc_json.php'
         try{
             const api = await API_CALL(url+path, form, true)
-            console.log(api)
-
             const {data : {method, result, message, count, item}} = api
-
-            setEstData(item)
-            console.log(item)
             if(result === "0") return Alert.alert("title","failed")
             if(result === "1"){
+                setEstData(item)
                 // Alert.alert("title","got it!")
             }
         }catch(e){
             console.log(e)
             Alert.alert("title","catch!!!")
         }
-
-
-        
     }
     console.log('estData', estData)
-
-
-
     return(
         <View style={{flex:1,backgroundColor:'#fff',}}>
             <EstHeader title="내 견적"/>
@@ -91,9 +84,12 @@ function EstimateScreen ({navigation}) {
 function EstItem({item}) {
     console.log("is this work??",item)
     const navigation = useNavigation();
+    
        return(
                  <TouchableOpacity
-                 onPress={() => navigation.navigate('EstDetail')}
+                 onPress={() => navigation.navigate('EstDetail',{
+                    idx:item.idx
+                 })}
                  style={{width:Box,alignItems: 'center', margin : 15}}>
                        <View style={{width:Box,height:Box,borderColor:'#e3e3e3',borderWidth:1,borderRadius:15,justifyContent:'center',alignItems:'center',marginBottom:10,overflow:'hidden'}}>
                            <Image
