@@ -48,7 +48,7 @@ import ReigsteredProductInfo from '../screen/ReigsteredProductInfo';
 import Category from '../screen/category';
 import TermsOfService from '../screen/TermsOfService';
 import PrivacyPolicy from '../screen/PrivacyPolicy';
-
+import OrderInformation from '../screen/OrderInformation';
 import CustomDrawer from '../components/customdrawer';
 
 const Stack = createStackNavigator();
@@ -167,6 +167,7 @@ export const MypageStack = () => {
             <Stack.Screen name="ReviewList" component={ReviewList}/>
             <Stack.Screen name="ReviewDetail" component={ReviewDetail}/>
             <Stack.Screen name="Transaction" component={Transaction}/>
+            <Stack.Screen name="OrderInformation" component={OrderInformation}/>
             <Stack.Screen name="Appraise" component={Appraise}/>
             <Stack.Screen name="AppraiseWrite" component={AppraiseWrite}/>
             <Stack.Screen name="AppraiseWriteComplete" component={AppraiseWriteComplete}/>
