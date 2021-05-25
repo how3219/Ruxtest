@@ -1,18 +1,69 @@
-import React from 'react';
+import React,{useEffect,useState,useCallback} from 'react';
 import {SafeAreaView, View, Text, ScrollView, Image, TouchableOpacity, Dimensions} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from '../style/style';
 import Header, {MypageHeader} from '../components/header';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BotLine from '../components/bottomline';
-
+import API_CALL from '../ApiCall';
 export const Width = Dimensions.get('window').width / 4 - 20
 
 const MypageScreen = ({navigation}) => { 
-
     const { member } = useSelector(state => state.login)
+    const [mypageItem,setMypageItem] = useState([])
+    const [starlist,setStarList] = useState(new Array(5).fill(0))
+    useEffect(() => {
+        getMypage()
+    }, [])
+    const getMypage = async() => {
+        try{
+            const form = new FormData;
+            form.append('method','proc_my_main')
+            form.append('mt_idx',member.mt_idx)
+            const url = 'http://dmonster1566.cafe24.com';
+            const path = '/json/proc_json.php';
+            const api = await API_CALL(url + path, form, true);
+            const {data:{result,message,item}} = api;
+            if(result==='0')Alert.alert('Mypage',message)
+            else if(result==='1'){
+                console.log(item)
+                setMypageItem(item[0])
+                makestars(item[0].rate2)
+            }
+        } catch(e) {
 
-
+        }
+    }
+    const makestars = (rate) => {
+        useCallback(
+        () => {
+            let arr = Object.assign([],starlist)
+            let rate2 = parseFloat(rate) // rate 넣으면됨 
+            for(let i=0; i<arr.length; i++){
+                if(rate2>i){
+                    if(rate2-(i)>1){
+                        arr[i]=1
+                    }else if(rate2-(i)<1&&rate2-(i)===0.5){
+                        arr[i]=0.5
+                    }
+                }else{
+                    arr[i]=0
+                }
+            }
+            setStarList(arr)
+            },
+        [starlist],
+    )}
+   
+    const renderstars = (val,idx) => {
+        if(val===1){
+            return <Icon name="star" size={23} color="#477DD1" key={idx}/>
+        }else if(val===0.5){
+            return <Icon name="star-half" size={23} color="#477DD1" key={idx}/>
+        }else if(val===0){
+            return <Icon name="star-border" size={23} color="#DDDDDD" key={idx}/>
+        }
+    }
     return(
     <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}> 
         <MypageHeader/>
@@ -26,18 +77,20 @@ const MypageScreen = ({navigation}) => {
                         />
                     </View>
                     <View style={{paddingLeft:20,}}>
-                        <Text style={{fontSize:13,fontFamily:'NotoSansKR-Regular',lineHeight:15,color:"#b9b9b9",}}>샤넬 종로점</Text>
+                        <Text style={{fontSize:13,fontFamily:'NotoSansKR-Regular',lineHeight:15,color:"#b9b9b9",}}>{mypageItem.	mt_company_name}</Text>
                         <View style={{flexDirection:'row',alignItems:'center',paddingBottom:6,}}>
                             <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,color:'#5E5E5E',fontFamily:'NotoSansKR-Bold',paddingRight:10,}}>{member.mt_nickname}</Text>
                             <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',paddingRight:10,}}>
-                                <Icon name="star" size={23} color="#477DD1"/>
-                                <Icon name="star" size={23} color="#477DD1"/>
-                                <Icon name="star" size={23} color="#477DD1"/>
-                                <Icon name="star" size={23} color="#477DD1"/>
-                                <Icon name="star-border" size={23} color="#DDDDDD"/>
+                            {
+                                starlist?.map((value,idx)=>{
+                                    return(
+                                        renderstars(value,idx)
+                                    )
+                                })
+                            }
                             </View>
                             <Text>
-                                <Text style={{color:'#606060',fontSize:13,lineHeight:15,fontFamily:'NotoSansKR-Regular'}}>4.0</Text>
+                                <Text style={{color:'#606060',fontSize:13,lineHeight:15,fontFamily:'NotoSansKR-Regular'}}>{mypageItem.rate2}</Text>
                                 <Text style={{color:'#B7B7B7',fontSize:13,lineHeight:15,fontFamily:'NotoSansKR-Regular'}}>/5</Text>
                             </Text>
                         </View>
@@ -53,7 +106,8 @@ const MypageScreen = ({navigation}) => {
                                 paddingVertical:3,
                                 marginRight:5,
                             }}>
-                                <Text style={{color:'#477DD1',fontSize:13,lineHeight:18,fontFamily:'NotoSansKR-Medium'}}>사업자</Text>
+                                {/* 여긴 어떻게 처리할지 내일 질문 예정  */}
+                                <Text style={{color:'#477DD1',fontSize:13,lineHeight:18,fontFamily:'NotoSansKR-Medium'}}>사업자</Text> 
                             </View>
                             <View style={{
                                 backgroundColor:'#fff',
@@ -66,13 +120,14 @@ const MypageScreen = ({navigation}) => {
                                 paddingVertical:3,
                                 marginRight:5,
                             }}>
-                                <Text style={{color:'#477DD1',fontSize:13,lineHeight:18,fontFamily:'NotoSansKR-Medium'}}>본인인증 1단계</Text>
+                                <Text style={{color:'#477DD1',fontSize:13,lineHeight:18,fontFamily:'NotoSansKR-Medium'}}>{mypageItem.mt_sms_certify==='Y'?'본인인증 1단계':'본인인증 미실시'}</Text>
                             </View>
 
                         </View>
                     </View>
                 </View>
                 <View style={{paddingHorizontal:12,paddingTop:20,}}>
+                    {/* 여긴 어떻게 처리할지 내일 질문 예정  */}
                     <Text style={{fontSize:13,color:'#8B8B8B',lineHeight:18,fontFamily:'NotoSansKR-Regular'}}>중고명품 안전거래를 책임지고 있습니다. 샤넬 종로점 이용 많이 부탁드려요~~</Text>
                 </View>
             </View>
@@ -190,7 +245,7 @@ const MypageScreen = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:13,color:'#444',fontFamily:'NotoSansKR-Regular',lineHeight:15,}}>전체</Text>
                         <View style={{width:10,height:1,backgroundColor:'#444',marginVertical:5,}}></View>
-                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>99,999</Text>
+                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>{mypageItem.buy_total}</Text>
                     </View>
                     <View style={{
                         justifyContent:'center',
@@ -203,7 +258,7 @@ const MypageScreen = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:13,color:'#444',fontFamily:'NotoSansKR-Regular',lineHeight:15,}}>입찰중</Text>
                         <View style={{width:10,height:1,backgroundColor:'#444',marginVertical:5,}}></View>
-                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>57</Text>
+                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>{mypageItem.buy_tender_cnt}</Text>
                     </View>
                     <View style={{
                         justifyContent:'center',
@@ -216,7 +271,7 @@ const MypageScreen = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:13,color:'#444',fontFamily:'NotoSansKR-Regular',lineHeight:15,}}>거래중</Text>
                         <View style={{width:10,height:1,backgroundColor:'#444',marginVertical:5,}}></View>
-                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>32</Text>
+                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>{mypageItem.buy_ing_cnt}</Text>
                     </View>
                     <View style={{
                         justifyContent:'center',
@@ -230,10 +285,10 @@ const MypageScreen = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:13,color:'#fff',fontFamily:'NotoSansKR-Regular',lineHeight:15,}}>거래완료</Text>
                         <View style={{width:10,height:1,backgroundColor:'#fff',marginVertical:5,}}></View>
-                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,color:'#fff'}}>99,999</Text>
+                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,color:'#fff'}}>{mypageItem.buy_end_cnt}</Text>
                     </View>
                 </View>
-                <Text style={{fontSize:16,fontWeight:'bold'}}>구매내역</Text>
+                <Text style={{fontSize:16,fontWeight:'bold'}}>판매내역</Text>
                 <View style={{paddingTop:16, flexDirection:'row',justifyContent:'space-between'}}>
                     <View style={{
                         justifyContent:'center',
@@ -246,7 +301,7 @@ const MypageScreen = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:13,color:'#444',fontFamily:'NotoSansKR-Regular',lineHeight:15,}}>전체</Text>
                         <View style={{width:10,height:1,backgroundColor:'#444',marginVertical:5,}}></View>
-                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>99,999</Text>
+                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>{mypageItem.sell_total}</Text>
                     </View>
                     <View style={{
                         justifyContent:'center',
@@ -259,7 +314,7 @@ const MypageScreen = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:13,color:'#444',fontFamily:'NotoSansKR-Regular',lineHeight:15,}}>입찰중</Text>
                         <View style={{width:10,height:1,backgroundColor:'#444',marginVertical:5,}}></View>
-                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>57</Text>
+                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>{mypageItem.sell_tender_cnt}</Text>
                     </View>
                     <View style={{
                         justifyContent:'center',
@@ -272,7 +327,7 @@ const MypageScreen = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:13,color:'#444',fontFamily:'NotoSansKR-Regular',lineHeight:15,}}>거래중</Text>
                         <View style={{width:10,height:1,backgroundColor:'#444',marginVertical:5,}}></View>
-                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>32</Text>
+                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,}}>{mypageItem.sell_ing_cnt}</Text>
                     </View>
                     <View style={{
                         justifyContent:'center',
@@ -286,7 +341,7 @@ const MypageScreen = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:13,color:'#fff',fontFamily:'NotoSansKR-Regular',lineHeight:15,}}>거래완료</Text>
                         <View style={{width:10,height:1,backgroundColor:'#fff',marginVertical:5,}}></View>
-                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,color:'#fff'}}>99,999</Text>
+                        <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20,color:'#fff'}}>{mypageItem.sell_end_cnt}</Text>
                     </View>
                 </View>
             </View>
