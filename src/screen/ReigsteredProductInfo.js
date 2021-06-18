@@ -177,7 +177,6 @@ const ReigsteredProductInfo = (props) => {
         const {data:{result,item,message}} = api;
         if(result==='0'){Alert.alert('',message)}
         else if(result==='1'){  
-          console.log(item[0])
             createSelectVal(item[0])
             setDetailItem(item[0])
             await getarea(item[0].pt_direct_si)
