@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState,useEffect} from 'react';
 import {
   SafeAreaView,
   View,
@@ -19,9 +19,10 @@ import Footer from '../components/footer';
 import {DefaultPicker} from '../components/Select';
 import Product from '../components/product';
 import API_CALL from '../ApiCall';
+import { getType } from '@reduxjs/toolkit';
 
 export const Width = Dimensions.get('window').width / 4;
-
+//나중에 member.mt_sms_certify를 비교하여 인증 여부 확인후 진행하게끔 처리예정
 const payment = [
   {label: '직거래', value: '직거래'},
   {label: '택배거래', value: '택배거래'},
@@ -32,17 +33,44 @@ const Bidding = props => {
   const {
     route: {params},
   } = props;
+  useEffect(() => {
+      getType()    
+  }, [])
+  
   const {member} = useSelector(state => state.login);
   const [isvisible, setIsvisible] = useState(false);
   const [mt_idx, setMt_idx] = useState(member.mt_idx);
   const [idx, setIdx] = useState(params.idx);
   const [bidprice, setBidprice] = useState(0);
   const [pt_deal_type, setPt_deal_type] = useState('');
+  const [defaultdealtype,setDeafultDealtype] = useState([]);
+  const getType =async() => {
+    try{
+      const form = new FormData();
+      form.append('method', 'proc_deal_type');
+      form.append('pt_idx',params.idx);
+      const url = 'http://dmonster1566.cafe24.com';
+      const path = '/json/proc_json.php';
+      const api = await API_CALL(url + path, form, false);
+      const {
+        data:{result,message,item}
+      } = api;
+      if (result === '0') return Alert.alert('', message);
+      if (result === '1') {
+        setDeafultDealtype(item&&item.deal_type.map((row,idx)=>{
+          return {label:row,value:row}
+        }))
+      
+      }
+    }catch(e){
+
+    }
+  }
   const pressbidding = async () => {
     try {
       const form = new FormData();
-      if (parseInt(bidprice) <= 0) return Alert.alert('bidprice');
-      if (!pt_deal_type) return Alert.alert('pt_deal_type');
+      if (parseInt(bidprice) <= 0) return;
+      if (!pt_deal_type) return;
       form.append('method', 'proc_product_tender');
       form.append('mt_idx', mt_idx);
       form.append('pt_idx', idx);
@@ -50,26 +78,19 @@ const Bidding = props => {
       form.append('td_price', bidprice);
       const url = 'http://dmonster1566.cafe24.com';
       const path = '/json/proc_json.php';
-
       const api = await API_CALL(url + path, form, false);
       const {
-        data: {result, message},
+        data:{result,message,item}
       } = api;
-      if (result === '0') return Alert.alert('no result', message);
+      if (result === '0') return Alert.alert('', message);
       if (result === '1') {
-        // Alert.alert('성공', message);
-        props.navigation.navigate('BidFinish', {
-          idx,
-          pt_title: params.pt_title,
-          pt_selling_edate: params.pt_selling_edate,
-          dday: params.dday,
-          pt_image1: params.pt_image1,
-          bidprice,
-        });
+        props.navigation.navigate('ChatDetail',{
+          mt_idx:item
+        })
       }
-    } catch {
+    } catch(e) {
       console.log(e);
-      Alert.alert('Catch!');
+      
     }
   };
 
@@ -139,7 +160,7 @@ const Bidding = props => {
             <View style={{width: 150}}>
               <DefaultPicker
                 placeholder="거래방식 선택"
-                picker={payment}
+                picker={defaultdealtype}
                 onChange={setPt_deal_type}
               />
             </View>

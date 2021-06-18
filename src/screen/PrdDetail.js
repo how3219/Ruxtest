@@ -24,8 +24,6 @@ const PrdDetail = props => {
   const {route} = props;
   const {navigation} = props;
   const {params} = route;
-  console.log('params', params);
-
   const {member} = useSelector(state => state.login);
 
   const [mt_idx, setMt_idx] = useState(member.mt_idx);
@@ -105,7 +103,6 @@ const PrdDetail = props => {
     form.append('pt_image5', pt_image5);
     form.append('mt_nickname', mt_nickname);
     form.append('rt_score	', rt_score);
-
     const url = 'http://dmonster1566.cafe24.com';
     const path = '/json/proc_json.php';
     try {
@@ -115,23 +112,14 @@ const PrdDetail = props => {
       } = api;
       if (result === '0') return Alert.alert('', 'no result');
       if (result === '1') {
+        console.log(item)
         setDetailItem(item[0]);
         setZzim_yn(item[0].zzim_yn);
-        console.log('item', item);
       }
     } catch (e) {
       console.log(e);
-      Alert.alert('Catch!');
+     
     }
-
-    // const itemConvert = item.map((v, _) => {
-    //   return {
-
-    //     ...v,
-    //     pt_tag_list : v.pt_tag_list === '' ? [] : v.pt_tag_list,
-    //   }
-    // })
-    // console.log("a",itemConvert)
   };
   const pressZzim = async () => {
     try {
@@ -156,10 +144,8 @@ const PrdDetail = props => {
       }
     } catch (e) {
       console.log(e);
-      Alert.alert('pressZzim Catch!');
     }
   };
-  // console.log('DetailItem', detailItem);
 
   return (
     <View style={{flex: 1, backgroundColor: '#fff'}}>
@@ -268,6 +254,7 @@ const PrdDetail = props => {
               />
             </TouchableWithoutFeedback>
           </View>
+          {detailItem.pt_direct_sell==="Y"?
           <View style={{alignItems: 'flex-end'}}>
             <Text
               style={{
@@ -287,7 +274,8 @@ const PrdDetail = props => {
               }}>
               {detailItem.pt_selling_price}원
             </Text>
-          </View>
+          </View>:null
+          }
         </View>
         <View
           style={{
@@ -327,11 +315,11 @@ const PrdDetail = props => {
                 flexWrap: 'wrap',
                 paddingBottom: 5,
               }}>
-              {/* {detailItem.map((arr, i) => (
+              {detailItem&&detailItem.pt_tag_list&&detailItem.pt_tag_list.indexOf(',')!==-1?detailItem.pt_tag_list?.split(',').map((arr, i) => (
                   <View key={i}>
-                    <Text style={styles.hashtag}>{arr.pt_tag_list}</Text>
+                    <Text style={styles.hashtag}>{arr}</Text>
                   </View>
-                ))} */}
+                )):detailItem&&detailItem.pt_tag_list?<Text>{detailItem.pt_tag_list}</Text>:null}
             </View>
             <View style={styles.contWrap}>
               <Text style={styles.title}>구매 시기</Text>
@@ -363,7 +351,7 @@ const PrdDetail = props => {
             </View>
             <View style={styles.contWrap}>
               <Text style={styles.title}>제품의 상태</Text>
-              <Text style={styles.cont}>{detailItem.pt_option_name3}</Text>
+              <Text style={styles.cont}>{detailItem.pt_option_name3_etc}</Text>
             </View>
           </View>
         </View>
@@ -379,7 +367,7 @@ const PrdDetail = props => {
             <Lightbox springConfig={{tension: 50, friction: 7}}>
               <Image
                 style={{resizeMode: 'contain', width: '100%', height: '100%'}}
-                source={{uri: detailItem.pt_image2}}
+                source={{uri: detailItem.pt_image1}}
               />
             </Lightbox>
             <View
@@ -415,7 +403,7 @@ const PrdDetail = props => {
             <Lightbox springConfig={{tension: 50, friction: 7}}>
               <Image
                 style={{resizeMode: 'contain', width: '100%', height: '100%'}}
-                source={{uri: detailItem.pt_image3}}
+                source={{uri: detailItem.pt_image1}}
               />
             </Lightbox>
             <View
@@ -451,7 +439,7 @@ const PrdDetail = props => {
             <Lightbox springConfig={{tension: 50, friction: 7}}>
               <Image
                 style={{resizeMode: 'contain', width: '100%', height: '100%'}}
-                source={{uri: detailItem.pt_image4}}
+                source={{uri: detailItem.pt_image2}}
               />
             </Lightbox>
             <View
@@ -524,14 +512,12 @@ const PrdDetail = props => {
           left: 0,
           elevation: 0,
         }}>
+        {
+          detailItem.pt_direct_sell==="Y"&&
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('PurchaseOrder', {
               idx,
-              pt_title: detailItem.pt_title,
-              pt_selling_edate: detailItem.pt_selling_edate,
-              dday: detailItem.dday,
-              pt_image1: detailItem.pt_image1,
             })
           }
           style={{
@@ -546,6 +532,7 @@ const PrdDetail = props => {
             즉시 구매
           </Text>
         </TouchableOpacity>
+        }
         <TouchableOpacity
           onPress={() =>
             navigation.navigate('Bidding', {
@@ -557,12 +544,12 @@ const PrdDetail = props => {
             })
           }
           style={{
-            width: Width,
+            width: detailItem.pt_direct_sell==="Y"?Width:'100%',
             height: 57,
             justifyContent: 'center',
             alignItems: 'center',
           }}>
-          <Text style={{fontSize: 18, fontFamily: 'NotoSansKR-Bold'}}>
+          <Text style={{fontSize: 18, fontFamily: 'NotoSansKR-Bold',color:'#000'}}>
             입찰하기
           </Text>
         </TouchableOpacity>

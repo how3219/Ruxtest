@@ -1,8 +1,8 @@
 import * as React from 'react';
-import {Image} from 'react-native';
+import {Image,Platform} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import {createStackNavigator} from '@react-navigation/stack';
-
+import { useSelector } from 'react-redux';
 import {
     MainStack,
     ChatStack,
@@ -34,7 +34,6 @@ export const BottomTabNavigator = () => {
             screenOptions={({route}) => ({
                 tabBarIcon: ({focused}) => {
                      let iconName;
-
                      if (route.name === 'Home') {
                          iconName = focused
                             ? require('../images/menu01_on.png')
@@ -60,7 +59,8 @@ export const BottomTabNavigator = () => {
                          />
                      )
                 }
-            })}>
+            })
+            }>
             <Tab.Screen name="Home" component={MainStack} options={{tabBarLabel:'홈으로'}}/>
             <Tab.Screen name="Estimate" component={EstimateStack} options={{tabBarLabel:'내 견적'}}/>
             <Tab.Screen name="Chat" component={ChatStack} options={{tabBarLabel:'채팅'}}/>

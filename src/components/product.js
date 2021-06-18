@@ -7,7 +7,6 @@ export const boxWidth = Dimensions.get('window').width / 4;
 const Product = props => {
   const {route} = props;
   const {params} = route;
-
   return (
     <View style={{flexDirection: 'row', alignItems: 'center'}}>
       <View

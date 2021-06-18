@@ -3,33 +3,15 @@ import {View, TouchableOpacity, Text} from 'react-native';
 
 import Icon from 'react-native-vector-icons/Ionicons';
 
-export const Sch_history = () => {
-    const schItems= [
-        {
-            id:1,
-            title:'명품백',
-        },
-        {
-            id:2,
-            title:'가방',
-        },
-        {
-            id:3,
-            title:'지갑',
-        },
-        {
-            id:4,
-            title:'오버핏 후드티',
-        },
-    ]
+export const Sch_history = ({searchlist,delsearch,setSearch,keywordSearch}) => {
     return(
         <>
-            {schItems.map((schItem) => ( <HistoryItem key={schItem.id} schItem={schItem}/>))}
+            {searchlist?.map((schItem) => ( <HistoryItem key={schItem.idx} schItem={schItem} delsearch={delsearch} keywordSearch={keywordSearch} setSearch={setSearch}/>))}
         </>
     );
 };
 
-function HistoryItem({schItem}){
+function HistoryItem({schItem,delsearch,keywordSearch}){
     return(
         <View style={{
             flexDirection:'row',
@@ -43,10 +25,10 @@ function HistoryItem({schItem}){
             marginRight:5,
             marginBottom:5,
             }}>
-            <TouchableOpacity>
-                <Text style={{fontFamily:'NotoSansKR-Medium',fontSize:13,lineHeight:20,paddingRight:5,color:'#707070'}}># {schItem.title}</Text>
+            <TouchableOpacity onPress={()=>{keywordSearch(schItem.slt_txt)}}>
+                <Text style={{fontFamily:'NotoSansKR-Medium',fontSize:13,lineHeight:20,paddingRight:5,color:'#707070'}}># {schItem.slt_txt}</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>delsearch(schItem.idx)}>
                 <Icon name="close" size={14} color="#707070"/>
             </TouchableOpacity>
         </View>
@@ -54,57 +36,16 @@ function HistoryItem({schItem}){
 }; 
 
 
-export const Key_alert = () => {
-    const alertItems= [
-        {
-            id:1,
-            title:'명품백',
-        },
-        {
-            id:2,
-            title:'시계',
-        },
-        {
-            id:3,
-            title:'트위드',
-        },
-        {
-            id:4,
-            title:'쥬얼리',
-        },
-        {
-            id:5,
-            title:'오버핏 후드티',
-        },
-        {
-            id:6,
-            title:'반지갑',
-        },
-        {
-            id:7,
-            title:'단화',
-        },
-        {
-            id:8,
-            title:'장화',
-        },
-        {
-            id:9,
-            title:'스커트',
-        },
-        {
-            id:10,
-            title:'언더웨어',
-        },
-    ]
+export const Key_alert = ({list,delkeyword}) => {
+   
     return(
         <>
-            {alertItems.map((alertItem) => ( <AlertItem key={alertItem.id} alertItem={alertItem}/>))}
+            {list?.map((listItem) => ( <AlertItem key={listItem.idx} listItem={listItem} delkeyword={delkeyword}/>))}
         </>
     );
 };
 
-function AlertItem({alertItem}){
+function AlertItem({listItem,delkeyword}){
     return(
         <View style={{
             flexDirection:'row',
@@ -118,9 +59,9 @@ function AlertItem({alertItem}){
             marginBottom:5,
             }}>
             <TouchableOpacity>
-                <Text style={{fontFamily:'NotoSansKR-Medium',fontSize:13,lineHeight:20,paddingRight:5,color:'#707070'}}># {alertItem.title}</Text>
+                <Text style={{fontFamily:'NotoSansKR-Medium',fontSize:13,lineHeight:20,paddingRight:5,color:'#707070'}}># {listItem.slt_keyword}</Text>
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>delkeyword(listItem.idx)}>
                 <Icon name="close" size={14} color="#707070"/>
             </TouchableOpacity>
         </View>

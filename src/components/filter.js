@@ -24,7 +24,6 @@ const PrdFilter = () => {
                     <Text style={{fontSize:12,color:'#B7B7B7'}}>  (선택1)</Text></Text>
                     <View style={{flexDirection:'row',flexWrap:'wrap',}}>
                         <FtrBrand/>
-
                     </View>
                 </View>
                 <View style={{paddingBottom:30,}}>

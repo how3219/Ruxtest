@@ -1,5 +1,5 @@
 import React, {useState,useCallback,useEffect} from 'react';
-import {ScrollView, View, Text, Image, TouchableOpacity, FlatList, Dimensions, Alert} from 'react-native';
+import {ScrollView, View, Text, Image, TouchableOpacity, FlatList, Dimensions, Alert,SafeAreaView} from 'react-native';
 import {useSelector} from 'react-redux';
 import { useNavigation } from '@react-navigation/native';    
 import styles from '../style/style';
@@ -48,26 +48,24 @@ function EstimateScreen ({navigation}) {
         form.append('pt_title',pt_title)
         form.append('td_price',td_price)
         form.append('dday',dday)
-
         const url = 'http://dmonster1566.cafe24.com'
         const path = '/json/proc_json.php'
         try{
             const api = await API_CALL(url+path, form, true)
             const {data : {method, result, message, count, item}} = api
-            if(result === "0") return Alert.alert("title","failed")
+            if(result === "0") return Alert.alert("",message)
             if(result === "1"){
                 setEstData(item)
-                // Alert.alert("title","got it!")
+              
             }
         }catch(e){
             console.log(e)
-            Alert.alert("title","catch!!!")
+           
         }
     }
-    console.log('estData', estData)
     return(
-        <View style={{flex:1,backgroundColor:'#fff',}}>
-            <EstHeader title="내 견적"/>
+        <SafeAreaView style={{flex:1,backgroundColor:'#fff',}}>
+            <EstHeader title="내 견적" setSearch={setSearch} search={search} getEstData={getEstData} setPt_deal_type={setPt_deal_type}/>
             <View style={{flex:1}}>
                 <FlatList
                     style={{flex:1}}
@@ -77,12 +75,11 @@ function EstimateScreen ({navigation}) {
                     numColumns={2}
                 />
             </View>
-        </View>
+        </SafeAreaView>
     )
 }
 
 function EstItem({item}) {
-    console.log("is this work??",item)
     const navigation = useNavigation();
     
        return(

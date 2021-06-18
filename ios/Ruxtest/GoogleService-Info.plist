@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>814296768732-82heetuia9r9li5g15q18eq7pupdp7hl.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.814296768732-82heetuia9r9li5g15q18eq7pupdp7hl</string>
+	<key>API_KEY</key>
+	<string>AIzaSyDUCidvw__0TE2Z6ckRytx-ppndDS1MBMA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>814296768732</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.luxboxkr.ios</string>
+	<key>PROJECT_ID</key>
+	<string>luxboxkorea-e3b49</string>
+	<key>STORAGE_BUCKET</key>
+	<string>luxboxkorea-e3b49.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:814296768732:ios:e30a1ac7072929419dd419</string>
+</dict>
+</plist>

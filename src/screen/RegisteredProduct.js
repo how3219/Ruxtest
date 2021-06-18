@@ -4,39 +4,47 @@ import {useNavigation} from '@react-navigation/native';
 import {useSelector} from 'react-redux';
 import {RPHeader} from '../components/header';
 import API_CALL from '../ApiCall';
+import { useIsFocused } from '@react-navigation/native';
 export const Width = Dimensions.get('window').width;
 export const Height = Dimensions.get('window').height;
 const PADDING = 20;
 const Box = (Width - PADDING * 2 - 20) /2
 
 const RegisteredProduct = ({navigation}) => {
+    const isfocused = useIsFocused()
     const [enrollment, setEnrollment] = useState([])
+    const [search,setSearch] = useState('')
+    const [search_type,setSearchType]= useState('pt_title')
     const {member} = useSelector(state => state.login)
-    console.log(member)
+    
     useEffect(() => {
-        getEnrollment()
-    }, [])
+        if(isfocused)getEnrollment()
+    }, [isfocused])
     const getEnrollment= async() => {
         try{
             const form = new FormData;
             form.append('method','proc_item_list')
             form.append('mt_idx',member.mt_idx)
-
+            search_type&&form.append('search_type',search_type)
+            search&&form.append('search',search)
+            console.log(form)
             const url = 'http://dmonster1566.cafe24.com'
             const params = '/json/proc_json.php'
             const api = await API_CALL(url+params, form, false)
-            const { data:{result,item} } = api;
-            if(result==='0') return Alert.alert('등록물품 Result')
+            const { data:{result,item,message} } = api;
+            if(result==='0') return Alert.alert('',message)
             if(result==='1'){
+                console.log(item)
                 setEnrollment(item)
             }
         }catch(e){
 
         }
     }
+    
     return(
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
-            <RPHeader title="등록물품 "/>
+            <RPHeader title="등록물품" search={search} setSearch={setSearch} getEnrollment={getEnrollment} setSearchType={setSearchType}/>
             <View style={{flex:1,paddingHorizontal:20,}}>
                 <FlatList
                 style={{flex:1}}

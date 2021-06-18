@@ -1,21 +1,19 @@
 import React from 'react';
 import {FlatList, TouchableOpacity, View, Image, Text,} from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons'
 import { useNavigation } from '@react-navigation/native';
-const TransList = (props) => {
-    const {item:itemlist} = props;    
+const TransList = ({item,transid,dealtype}) => {
     return(
         <FlatList
             style={{flex:1}}
-            data={itemlist}
-            renderItem={({item, index} ) => <TransItem item={item}/>}
-            keyExtractor={(item) => `${item.idx}`}
+            data={item&&item[0]?.list?item[0].list:item}
+            renderItem={({item, index} ) => <TransItem item={item} transid={transid} dealtype={dealtype}/>}
+            keyExtractor={(item,idx) => idx}
             showsVerticalScrollIndicator={false}
         />
     );
 };
 
-function TransItem({item : transItem}){
+function TransItem({item : transItem,transid,dealtype}){
     const navigation = useNavigation();
     return(
         transItem?
@@ -28,15 +26,19 @@ function TransItem({item : transItem}){
                 borderBottomColor:'#eee',
                 paddingVertical:14,
                 }}
-                onPress={()=>transItem&&transItem.list&&navigation.navigate('OrderInformation',{
-                    idx:transItem&&!transItem.list?transItem.idx:transItem&&transItem.list&&transItem.list.idx,
-                    pt_deal_type:transItem&&!transItem.list?transItem.pt_deal_type:transItem&&transItem.list&&transItem.list.pt_deal_type,
-                })}
+                onPress={()=>{transid=='3'||dealtype=='3'?navigation.navigate('OrderInformation',{
+                    idx:transItem&&transItem.list?transItem.list.idx:transItem.idx,
+                    transid:transid
+                }):navigation.navigate('OrderInformation',{
+                    td_idx_ing:transItem&&transItem.td_idx,
+                    transid:transid
+                })
+            }}
         >
             <TouchableOpacity
                 style={{width:20,height:20,position:'absolute',top:4,right:0,}}
                 >
-                <Icon name="close" size={20} color="#AAAAAA"/>
+                {/* <Icon name="close" size={20} color="#AAAAAA"/> */}
             </TouchableOpacity>
             <View style={{width:62,height:62,borderRadius:31,overflow:'hidden',marginRight:10,}}>
                 <Image 
@@ -63,7 +65,7 @@ function TransItem({item : transItem}){
                     justifyContent:'center',
                     alignItems:'center',
                 }}>
-                <Text style={{fontFamily:'NotoSansKR-Medium',color:'#fff',fontSize:13,lineHeight:20,}}>{transItem&&!transItem.list?transItem.payment_type:transItem.list.payment_type}</Text>
+                <Text style={{fontFamily:'NotoSansKR-Medium',color:'#fff',fontSize:13,lineHeight:20,}}>{transItem&&!transItem.list?(transItem.payment_type?transItem.payment_type:transItem.pt_deal_type):transItem.list.td_status}</Text>
             </TouchableOpacity>
         </TouchableOpacity>:null
     );

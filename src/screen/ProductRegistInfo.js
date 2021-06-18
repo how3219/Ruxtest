@@ -13,11 +13,12 @@ import {
   Alert,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import {CommonActions} from '@react-navigation/native';
 import { DefaultPicker } from '../components/Select';
 import API_CALL from '../ApiCall';
 import { useSelector } from 'react-redux';
 import DatePicker from '../components/datepicker';
-import {launchImageLibrary} from 'react-native-image-picker';
+import { launchImageLibrary } from 'react-native-image-picker';
 const Width = Dimensions.get('window').width;
 const PADDING = 20;
 const StatWidth = (Width - PADDING * 2 - 40) / 3;
@@ -56,14 +57,6 @@ const deliveryPicker = [
   { label: '무료 배송', value: 'N' },
 ];
 
-const pakageitem = {
-  case: false,
-  guarantee: false,
-  tag: false,
-  receipt: false,
-  etc: false,
-};
-
 const dealtype = {
   direct: false,
   courier: false,
@@ -79,48 +72,91 @@ const ProductRegistInfo = props => {
     let year = new Date().getFullYear();
     let year_option = [];
     let month_option = [];
-    setSelectBrand(
-      params.brand.map(value => {
-        return { label: value.brand_name, value: value.idx };
-      }),
-    );
-    for (let i = 2000; i <= year; i++) {
-      year_option[i-2000] = { key: i, label: i + '년', value: i };
+    if(params&&params.brand){
+        setSelectBrand(
+          params.brand.map(value => {
+            return { label: value.brand_name, value: value.idx };
+          }),
+        );
+    }
+    for (let i = 2010; i <= year; i++) {
+      year_option[i - 2010] = { key: i, label: i + '년', value: i };
     }
 
     for (let i = 1; i <= 12; i++) {
-      month_option[i-1] = { key: i, label: i + '월', value: i };
+      month_option[i - 1] = { key: i, label: i + '월', value: i < 10 ? '0' + i : i };
     }
     setSelectMonth(month_option);
     setSelectYear(year_option);
   };
-  const getarea = async() => {
-    try{
+  const getarea = async () => {
+    try {
       const form = new FormData;
-      form.append('method','proc_pt_direct_sigugun')
-      form.append('pt_direct_si',directsi)
+      form.append('method', 'proc_pt_direct_sigugun')
+      form.append('pt_direct_si', directsi)
       const url = 'http://dmonster1566.cafe24.com';
       const path = '/json/proc_json.php';
 
       const api = await API_CALL(url + path, form, false);
-      const {data:{result,item}} = api;
-      if(result==='0'){Alert.alert('직거래 가능지역 result')}
-      else if(result==='1'){
-        let gugun = item.map((value)=>{
-          return {label:value.pt_direct_gugun,value:value.pt_direct_gugun}
+      const { data: { result, item,message } } = api;
+      if (result === '0') { Alert.alert('',message) }
+      else if (result === '1') {
+        let gugun = item.map((value) => {
+          return { label: value.pt_direct_gugun, value: value.pt_direct_gugun }
         })
         setCityPicker(gugun)
       }
-      
-    }catch(e){
+
+    } catch (e) {
       console.log(e)
     }
   }
+  const getselect1 = async () => {
+    const form = new FormData;
+    form.append('method', 'proc_item_select_list')
+    form.append('select_name', '어디서 구매하셨나요?')
+    const url = 'http://dmonster1566.cafe24.com';
+    const path = '/json/proc_json.php';
+    const api = await API_CALL(url + path, form, false);
+    const { data: { result, item,message } } = api;
+    if (result === '0') { Alert.alert('',message) }
+    else if (result === '1') {
+      setData_1(item)
+    }
+  }
+  const getselect2 = async () => {
+    const form = new FormData;
+    form.append('method', 'proc_item_select_list')
+    form.append('select_name', '구성품이 있나요?')
+    const url = 'http://dmonster1566.cafe24.com';
+    const path = '/json/proc_json.php';
+    const api = await API_CALL(url + path, form, false);
+    const { data: { result, item } } = api;
+    if (result === '0') { Alert.alert('',message) }
+    else if (result === '1') {
+      setPakage(item)
+    }
+  }
+  const getselect3 = async () => {
+    const form = new FormData;
+    form.append('method', 'proc_item_select_list')
+    form.append('select_name', '제품의 상태를 알려주세요.')
+    const url = 'http://dmonster1566.cafe24.com';
+    const path = '/json/proc_json.php';
+    const api = await API_CALL(url + path, form, false);
+    const { data: { result, item,message } } = api;
+    if (result === '0') { Alert.alert('',message) }
+    else if (result === '1') {
+      setData_2(item)
+
+    }
+  }
+
   const { member } = useSelector(state => state.login);
   const [selectbrand, setSelectBrand] = useState([]);
   const [selectmonth, setSelectMonth] = useState([]);
   const [selectyear, setSelectYear] = useState([]);
-  const [title, setTitle] = useState('')
+  const [title, setTitle] = useState('');
   const [brand, setBrand] = useState('');
   const [size, setSize] = useState('')
   const [buyyear, setBuyYear] = useState('');
@@ -129,7 +165,7 @@ const ProductRegistInfo = props => {
   const [option2, setOption2] = useState('');
   const [option2_etc, setOption2Etc] = useState('');
   const [directsell, setDirectSell] = useState('');
-  const [price, setPrice] = useState('')
+  const [price, setPrice] = useState('0')
   const [deal_type, setDealtype] = useState('');
   const [baesongprice, setBaeSongPrice] = useState('');
   const [baesongcheck, setBaesongCheck] = useState('');
@@ -137,90 +173,36 @@ const ProductRegistInfo = props => {
   const [directgugun, setdirectgugun] = useState('');
   const [option3, setOption3] = useState('');
   const [option3_etc, setOption3Etc] = useState('');
-  const [salenow, setSalenow] = useState('');
   const [img1, setImg1] = useState('');
   const [img2, setImg2] = useState('');
   const [img3, setImg3] = useState('');
   const [img4, setImg4] = useState('');
   const [img5, setImg5] = useState('');
   const [tag, settag] = useState('');
-  const [pakage, setPakage] = useState(pakageitem);
+  const [pakage, setPakage] = useState([]);
+  const [selectpakage, setSelectPakage] = useState([]);
   const [deal, setDeal] = useState(dealtype);
   const [show, setShow] = useState(false);
   const [date, setDate] = useState(new Date());
-  const [cityPicker,setCityPicker] = useState([])
+  const [cityPicker, setCityPicker] = useState([])
   useEffect(() => {
-    if(directsi){
+    if (directsi) {
       getarea()
     }
   }, [directsi]);
   useEffect(() => {
-    defaultsetting();    
+    defaultsetting();
+    getselect1();
+    getselect2();
+    getselect3();
   }, []);
-  const [data_1, setData_1] = useState([
-    {
-      id: 1,
-      title: '백화점',
-      state: false,
-    },
-    {
-      id: 2,
-      title: '아울렛',
-      state: false,
-    },
-    {
-      id: 3,
-      title: '편집샵',
-      state: false,
-    },
-    {
-      id: 4,
-      title: '인터넷',
-      state: false,
-    },
-    {
-      id: 5,
-      title: '중고거래',
-      state: false,
-    },
-    {
-      id: 6,
-      title: '모릅니다',
-      state: false,
-    },
-  ]);
-  const [data_2, setData_2] = useState([
-    {
-      id: 14,
-      title: '전시품급 컨디션',
-      state: false,
-    },
-    {
-      id: 15,
-      title: '미세한 사용감',
-      state: false,
-    },
-    {
-      id: 16,
-      title: '적당한 사용감',
-      state: false,
-    },
-    {
-      id: 17,
-      title: '사용감이 있어 눈에 보이는 정도',
-      state: false,
-    },
-    {
-      id: 18,
-      title: '하자나 헤짐 있는 상품',
-      state: false,
-    },
-  ]);
+  const [data_1, setData_1] = useState([]);
+  const [data_2, setData_2] = useState([]);
   const [data_3, setData_3] = useState({
-    repairstate:false,
-    pollutionstate:false,
-    Hedgingstate:false,
-    scratchstate:false
+    repairstate: false,
+    pollutionstate: false,
+    Hedgingstate: false,
+    scratchstate: false
   });
 
   const [enroll, setEnroll] = useState(false);
@@ -254,37 +236,37 @@ const ProductRegistInfo = props => {
         switch (id) {
           case 1:
             setImg1({
-              name:response.fileName,
-              type:response.type,
-              uri:response.uri
+              name: response.fileName,
+              type: response.type,
+              uri: response.uri
             })
             break;
           case 2:
             setImg2({
-              name:response.fileName,
-              type:response.type,
-              uri:response.uri
+              name: response.fileName,
+              type: response.type,
+              uri: response.uri
             })
             break;
           case 3:
             setImg3({
-              name:response.fileName,
-              type:response.type,
-              uri:response.uri
+              name: response.fileName,
+              type: response.type,
+              uri: response.uri
             })
             break;
           case 4:
             setImg4({
-              name:response.name,
-              type:response.type,
-              uri:response.uri
+              name: response.name,
+              type: response.type,
+              uri: response.uri
             })
             break;
           case 5:
             setImg5({
-              name:response.name,
-              type:response.type,
-              uri:response.uri
+              name: response.name,
+              type: response.type,
+              uri: response.uri
             })
             break;
           default:
@@ -293,68 +275,87 @@ const ProductRegistInfo = props => {
       }
     });
   };
-  const multipleselect = (option,type) => {
+  const multipleselect = (option, type) => {
     let result = [];
-    if(type==='pakage'){
-      option.case&&result.push('8')
-      option.guarantee&&result.push('10')
-      option.tag&&result.push('11')
-      option.receipt&&result.push('12')
-      option.etc&&result.push('13')
-    }else if(type==='deal'){
-      option.direct&&result.push('D')
-      option.courier&&result.push('B')
-      option.safe&&result.push('S')
-    }else if(type==='data_3'){
-      option.repairstate&&result.push('수선여부')
-      option.pollutionstate&&result.push('오염')
-      option.Hedgingstate&&result.push('해짐')
-      option.scratchstate&&result.push('스크래치')
+    if (type === 'pakage') {
+      option.case && result.push('8')
+      option.guarantee && result.push('10')
+      option.tag && result.push('11')
+      option.receipt && result.push('12')
+      option.etc && result.push('13')
+    } else if (type === 'deal') {
+      option.direct && result.push('D')
+      option.courier && result.push('B')
+      option.safe && result.push('S')
+    } else if (type === 'data_3') {
+      option.repairstate && result.push('수선여부')
+      option.pollutionstate && result.push('오염')
+      option.Hedgingstate && result.push('헤짐')
+      option.scratchstate && result.push('스크래치')
     }
-    return result?result.join(','):''
+    return result ? result.join(',') : ''
   }
-  const productregi = async() => {
+
+  const onPresspakage = (el) => {
+    let result = Object.assign([], selectpakage);
+    selectpakage.length === 0 || selectpakage.indexOf(el.io_id) === -1 ?
+      result.push(el.io_id) :
+      result = result.filter((val) => {
+        return val !== el.io_id
+      })
+    setSelectPakage(result)
+  }
+  const productregi = async (type) => {
     const form = new FormData;
-    form.append('method','proc_item_add')
-    form.append('idx',member.mt_idx)
-    form.append('ct_id',params.ct_id)
-    form.append('ct_id2',params.ct_id2)
-    form.append('ct_id3',params.ct_id3)
-    form.append('bidx',brand)
-    form.append('pt_title',title)
-    form.append('pt_size',size)
-    form.append('pt_buy_year',buyyear)
-    form.append('pt_buy_month',buymonth)
-    form.append('pt_option_name1',option1)
-    form.append('pt_option_name2[]',multipleselect(pakage,'pakage'))
-    form.append('pt_option_name2_etc',option2_etc)
-    form.append('pt_direct_sell',directsell)
-    form.append('pt_selling_price',price)
-    form.append('pt_selling_edate',FormatDate(date))
-    form.append('pt_deal_type[]',multipleselect(deal,'deal'))
-    form.append('pt_baesong_price_yn',baesongcheck)
-    form.append('pt_baesong_price',baesongprice)
-    form.append('pt_direct_si',directsi)
-    form.append('pt_direct_gugun',directgugun)
-    form.append('pt_sale_now',salenow)
-    form.append('pt_option_name3',option3)
-    form.append('pt_option_name3_etc[]',multipleselect(data_3,'data_3'))
-    form.append('pt_image1',img1)
-    form.append('pt_image2',img2)
-    form.append('pt_image3',img3)
-    form.append('pt_image4',img4)
-    form.append('pt_image5',img5)
-    form.append('pt_tag',size)
-    console.log(form)
+    form.append('method', 'proc_item_add')
+    form.append('idx', member.mt_idx)
+    form.append('ct_id', params.ct_id)
+    form.append('ct_id2', params.ct_id2)
+    form.append('ct_id3', params.ct_id3)
+    form.append('bidx', brand)
+    form.append('pt_title', title)
+    form.append('pt_size', size)
+    form.append('pt_buy_year', buyyear)
+    form.append('pt_buy_month', buymonth) 
+    form.append('pt_option_name1', option1)
+    form.append('pt_option_name2[]', selectpakage.join(','))
+    form.append('pt_option_name2_etc', option2_etc)
+    form.append('pt_direct_sell', directsell)
+    form.append('pt_selling_price', price)
+    form.append('pt_selling_edate', FormatDate(date))
+    form.append('pt_deal_type', multipleselect(deal, 'deal'))
+    form.append('pt_baesong_price_yn', baesongcheck)
+    form.append('pt_baesong_price', baesongprice)
+    form.append('pt_direct_si', directsi)
+    form.append('pt_direct_gugun', directgugun)
+    form.append('pt_sale_now', 'Y')
+    form.append('pt_option_name3', option3)
+    form.append('pt_option_name3_etc', multipleselect(data_3, 'data_3'))
+    form.append('pt_image1', img1)
+    form.append('pt_image2', img2)
+    form.append('pt_image3', img3)
+    form.append('pt_image4', img4)
+    form.append('pt_image5', img5)
+    form.append('pt_tag', tag.replace(/,/gi,"|"))
     const url = 'http://dmonster1566.cafe24.com';
     const path = '/json/proc_json.php';
     const api = await API_CALL(url + path, form, true);
-    const {data:{result,message}} = api;
-    if(result==='0') Alert.alert('내 상품 등록',message)
-    else if(result==='1'){
-      console.log('gggggggggggg')
+    const { data: { result, message, item } } = api;
+    if (result === '0') Alert.alert('', message)
+    else if (result === '1') {
+      if(type=='Appraise'){
+        Alert.alert('', message)
+        navigation.navigate('AppraiseWrite',{ct_id:params.ct_id,regi_id:item})
+      }else{
+        Alert.alert('', message)
+        navigation.dispatch(
+          CommonActions.reset({
+            index:1,
+            routes:[{name:'Main'},{name:'RegisteredProduct'}]
+          })
+        )
+      }
     }
-    
   }
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#fff' }}>
@@ -438,27 +439,16 @@ const ProductRegistInfo = props => {
               어디서 구매하셨나요? <Text style={styles.seltext}> (선택1)</Text>
             </Text>
             <View>
-              {data_1.map((element, key) => (
+              {data_1?.map((element, key) => (
                 <TouchableOpacity
                   key={key}
-                  onPress={() => {
-                    setData_1(
-                      data_1.map(data => {
-                        if (data.id === element.id) {
-                          return { ...data, state: true };
-                        } else {
-                          return { ...data, state: false };
-                        }
-                      }),
-                    ),
-                      setOption1(element.title)
-                    }
+                  onPress={() => { setOption1(element.option_name) }
                   }
                   style={{
                     flex: 1,
                     height: 40,
                     backgroundColor:
-                      element.state === false ? '#F8F8F8' : '#447DD1',
+                      element.option_name !== option1 ? '#F8F8F8' : '#447DD1',
                     paddingLeft: 20,
                     justifyContent: 'center',
                     borderBottomColor: '#eee',
@@ -468,9 +458,9 @@ const ProductRegistInfo = props => {
                     style={{
                       fontSize: 14,
                       fontFamily: 'NotoSansKR-Medium',
-                      color: element.state === false ? '#222' : '#fff',
+                      color: element.option_name !== option1 ? '#222' : '#fff',
                     }}>
-                    {element.title}
+                    {element.option_name}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -499,122 +489,32 @@ const ProductRegistInfo = props => {
               <Text style={styles.seltext}> (다중 선택 가능)</Text>
             </Text>
             <View>
-              <TouchableOpacity
-                onPress={() =>
-                  setPakage({ ...pakage, case: !pakage.case, idx: '8' })
-                }
-                style={{
-                  flex: 1,
-                  height: 40,
-                  backgroundColor:
-                    pakage.case === false ? '#F8F8F8' : '#447DD1',
-                  paddingLeft: 20,
-                  justifyContent: 'center',
-                  borderBottomColor: '#eee',
-                  borderBottomWidth: 1,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'NotoSansKR-Medium',
-                    color: pakage.case === false ? '#222' : '#fff',
-                  }}>
-                  케이스
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  setPakage({
-                    ...pakage,
-                    guarantee: !pakage.guarantee,
-                    idx: '10',
-                  })
-                }
-                style={{
-                  flex: 1,
-                  height: 40,
-                  backgroundColor:
-                    pakage.guarantee === false ? '#F8F8F8' : '#447DD1',
-                  paddingLeft: 20,
-                  justifyContent: 'center',
-                  borderBottomColor: '#eee',
-                  borderBottomWidth: 1,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'NotoSansKR-Medium',
-                    color: pakage.guarantee === false ? '#222' : '#fff',
-                  }}>
-                  정품보증서
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  setPakage({ ...pakage, tag: !pakage.tag, idx: '11' })
-                }
-                style={{
-                  flex: 1,
-                  height: 40,
-                  backgroundColor: pakage.tag === false ? '#F8F8F8' : '#447DD1',
-                  paddingLeft: 20,
-                  justifyContent: 'center',
-                  borderBottomColor: '#eee',
-                  borderBottomWidth: 1,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'NotoSansKR-Medium',
-                    color: pakage.tag === false ? '#222' : '#fff',
-                  }}>
-                  택
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  setPakage({ ...pakage, receipt: !pakage.receipt, idx: '12' })
-                }
-                style={{
-                  flex: 1,
-                  height: 40,
-                  backgroundColor:
-                    pakage.receipt === false ? '#F8F8F8' : '#447DD1',
-                  paddingLeft: 20,
-                  justifyContent: 'center',
-                  borderBottomColor: '#eee',
-                  borderBottomWidth: 1,
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'NotoSansKR-Medium',
-                    color: pakage.receipt === false ? '#222' : '#fff',
-                  }}>
-                  영수증
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={() =>
-                  setPakage({ ...pakage, etc: !pakage.etc, idx: '13' })
-                }
-                style={{
-                  flex: 1,
-                  height: 40,
-                  backgroundColor: pakage.etc === false ? '#F8F8F8' : '#447DD1',
-                  paddingLeft: 20,
-                  justifyContent: 'center',
-                }}>
-                <Text
-                  style={{
-                    fontSize: 14,
-                    fontFamily: 'NotoSansKR-Medium',
-                    color: pakage.etc === false ? '#222' : '#fff',
-                  }}>
-                  기타
-                </Text>
-              </TouchableOpacity>
-              {pakage.etc && (
+              {
+                pakage?.map((element, index) => {
+                  return (
+                    <TouchableOpacity
+                      key={element.io_id}
+                      style={{
+                        flex: 1,
+                        height: 40,
+                        backgroundColor: selectpakage.length === 0 || selectpakage.indexOf(element.io_id) === -1 ? '#F8F8F8' : '#447DD1',
+                        paddingLeft: 20,
+                        justifyContent: 'center',
+                      }}
+                      onPress={() => onPresspakage(element)}>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          fontFamily: 'NotoSansKR-Medium',
+                          color: selectpakage.length === 0 || selectpakage.indexOf(element.io_id) === -1 ? '#222' : '#fff',
+                        }}>
+                        {element.option_name}
+                      </Text>
+                    </TouchableOpacity>
+                  )
+                })
+              }
+              {selectpakage.indexOf('13') !== -1 && (
                 <View
                   style={{
                     flexDirection: 'row',
@@ -637,11 +537,11 @@ const ProductRegistInfo = props => {
                       paddingLeft: 10,
                       flexGrow: 1,
                       marginLeft: 10,
-                      color:'#000'
+                      color: '#000'
                     }}
                     placeholder="구성품 입력"
                     placeholderTextColor="#c9c9c9"
-                    onChangeText={text=>setOption2Etc(text)}
+                    onChangeText={text => setOption2Etc(text)}
                   />
                 </View>
               )}
@@ -687,7 +587,6 @@ const ProductRegistInfo = props => {
             </Text>
             <View style={{ flexDirection: 'row' }}>
               <TouchableOpacity
-                onPress={() => {setDeal({ ...deal, direct: !deal.direct })}}
                 style={{
                   backgroundColor: deal.direct === false ? '#fff' : '#447DD1',
                   borderColor: '#447DD1',
@@ -697,7 +596,8 @@ const ProductRegistInfo = props => {
                   borderRadius: 8,
                   justifyContent: 'center',
                   alignItems: 'center',
-                }}>
+                }}
+                onPress={() => {setDeal({ ...deal, direct: !deal.direct })}}>
                 <Text
                   style={{
                     fontSize: 14,
@@ -793,6 +693,7 @@ const ProductRegistInfo = props => {
                   placeholder="금액 입력"
                   style={[styles.inputstyle, { flex: 1 }]}
                   keyboardType="numeric"
+                  placeholderTextColor="#C9C9C9"
                   onChangeText={text=>setBaeSongPrice(text)}
                 />
               </View>
@@ -804,27 +705,16 @@ const ProductRegistInfo = props => {
               <Text style={styles.seltext}> (선택1)</Text>
             </Text>
             <View>
-              {data_2.map((element, key) => (
+              {data_2?.map((element, key) => (
                 <TouchableOpacity
                   key={key}
-                  onPress={() =>{
-                    setData_2(
-                      data_2.map(data => {
-                        if (data.id === element.id) {
-                          return { ...data, state: true };
-                        } else {
-                          return { ...data, state: false };
-                        }
-                      }),
-                    )
-                    setOption3(element.id)
-                    }
+                  onPress={() =>{setOption3(element.option_name)}
                   }
                   style={{
                     flex: 1,
                     height: 40,
                     backgroundColor:
-                      element.state === false ? '#F8F8F8' : '#447DD1',
+                      element.option_name !== option3 ? '#F8F8F8' : '#447DD1',
                     paddingLeft: 20,
                     justifyContent: 'center',
                     borderBottomColor: '#eee',
@@ -834,9 +724,9 @@ const ProductRegistInfo = props => {
                     style={{
                       fontSize: 14,
                       fontFamily: 'NotoSansKR-Medium',
-                      color: element.state === false ? '#222' : '#fff',
+                      color: element.option_name !== option3 ? '#222' : '#fff',
                     }}>
-                    {element.title}
+                    {element.option_name}
                   </Text>
                 </TouchableOpacity>
               ))}
@@ -1179,6 +1069,16 @@ const ProductRegistInfo = props => {
                 </TouchableOpacity>
             </View>
           </View>
+          <View style={styles.contbox}>
+            <Text style={styles.contitle}>태그를 입력해 주세요.<Text style={styles.seltext}>(콤마로 구분해 주세요)</Text></Text>            
+              <TextInput
+                placeholder="콤마로 구분해 주세요"
+                placeholderTextColor="#C9C9C9"
+                style={styles.tagstyle}
+                numberOfLines={10}
+                onChangeText={text=>settag(text)}
+              />                        
+          </View>
         </View>
       </ScrollView>
       <View
@@ -1357,7 +1257,7 @@ const ProductRegistInfo = props => {
                   width: 185,
                   marginBottom: 10,
                 }}
-                onPress={()=>{setSalenow('N')}}>
+                onPress={()=>{productregi('Appraise')}}>
                 <Text
                   style={{
                     fontSize: 13,
@@ -1378,7 +1278,7 @@ const ProductRegistInfo = props => {
                   width: 185,
                   marginBottom: 10,
                 }}
-                onPress={() => {setEnroll(true),setSalenow('Y')}}
+                onPress={() => {setEnroll(true)}}
               >
                 <Text
                   style={{
@@ -1439,6 +1339,18 @@ const styles = StyleSheet.create({
     paddingVertical: 0,
     marginBottom: 5,
     color: '#000',
+  },
+  tagstyle: {
+    alignItems:'flex-start',
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: '#eee',
+    borderRadius: 8,
+    paddingLeft: 10,
+    paddingVertical: 0,
+    marginBottom: 5,
+    color: '#000',
+    textAlignVertical:"top"
   },
   graybox: {
     backgroundColor: '#EBEBEB',

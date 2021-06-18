@@ -76,7 +76,7 @@ function loginReducer (state = initialstate, action){
         case 'LOGIN' :
             return{
                 ...state,
-                member :    action.payload
+                member:action.payload
             }
         default:
             return{

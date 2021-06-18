@@ -24,25 +24,18 @@ export default class MainSlide extends React.Component {
       const {
         data: {result, item},
       } = api;
-      if (result === '0') return Alert.alert('no result Slide');
+      if (result === '0') return Alert.alert('','no result Slide');
       if (result === '1') {
         this.setState({MainItems: item});
       }
     } catch (e) {
-      Alert.alert('slide Catch');
+      
     }
   };
   _renderItem = ({item, index}) => {
     let bn_begin = new Date(item.bn_begin);
     let bn_end = new Date(item.bn_end);
     let current = new Date();
-    console.log(1111, bn_begin);
-    console.log(2222, bn_end);
-    console.log(3333, current);
-    // console.log(current);
-    // let currentdata = this.date.
-    console.log(bn_begin < current);
-    console.log(595959, current < bn_end);
     return (
       bn_begin < current &&
       current < bn_end && (
@@ -66,7 +59,7 @@ export default class MainSlide extends React.Component {
 
   render() {
     return (
-      <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
+      <View style={{flexDirection: 'row', justifyContent: 'center'}}>
         <Carousel
           autoplay={false}
           layout={'default'}

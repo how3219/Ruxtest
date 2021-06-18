@@ -1,9 +1,30 @@
 import React, {useState, useEffect}from 'react';
-import {SafeAreaView, View, ScrollView, Text, TouchableOpacity, StyleSheet} from 'react-native';
+import {SafeAreaView, View, ScrollView, Text, TouchableOpacity, StyleSheet, Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-
+import API_CALL from '../ApiCall'
 const ProductRegistCaution = ({navigation}) => {
     const [check, setCheck] = useState(false);
+    const [caution,setCaution] = useState('');
+    useEffect(() => {
+        getCaution()        
+    }, [])
+    const getCaution = async() =>{
+        try{
+            const form = new FormData()
+            form.append('method', 'proc_precautions')
+
+            const url = 'http://dmonster1566.cafe24.com'
+            const path = '/json/proc_json.php'
+            const api = await API_CALL(url+path, form, false)
+            const { data:{result,item,message} } = api;   
+            if(result==='0'){Alert.alert('',message)}
+            else if(result==='1'){
+                setCaution(item)
+            }
+        }catch(e){
+
+        }
+    }
     return(
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
             <View style={{flexDirection:'row',height:60,justifyContent:'space-between',alignItems:'center',borderBottomColor:'#EEEEEE',borderBottomWidth:1,paddingHorizontal:20,}}>
@@ -30,7 +51,8 @@ const ProductRegistCaution = ({navigation}) => {
                 </View> 
                 <View style={{padding:20,backgroundColor:'#f8f8f8'}}>
                     <View style={styles.textbox}>
-                        <Text style={styles.title}>1. 위조상품 판매행위 금지</Text>
+                        <Text style={styles.content}>{caution?caution:null}</Text>
+                        {/* <Text style={styles.title}>1. 위조상품 판매행위 금지</Text>
                         <Text style={styles.content}>- 위조상품(가품)은 판매등록이 불가능 합니다</Text>
                         <Text style={styles.content}>- 위조상품(가품)을 판매할 경우 상표법위반의 범죄행위로 처벌을 받을 수 있습니다 </Text>
                         <Text style={styles.content}>- 위조상품임을 모르고 판매한 경우에도 처벌을 받으며, 알고 판매한 경우 사기죄에 해당 합니다 </Text>
@@ -56,7 +78,7 @@ const ProductRegistCaution = ({navigation}) => {
                         <Text style={styles.content}>- 상품 사진은 최소 5장 이상 직접 촬영하여 등록합니다</Text>
                         <Text style={styles.content}>  (전면, 후면, 내부택/각인, 구성품, 사용감/하자) 추가 등록 가능</Text>
                         <Text style={styles.content}>- 상품 전체를 알 수 있는 선명한 이미지를 권장합니다</Text>
-                        <Text style={styles.content}>- 홍보문구 및 스펙 등 텍스트는 등록하면 불량게시글로 간주됩니다</Text>
+                        <Text style={styles.content}>- 홍보문구 및 스펙 등 텍스트는 등록하면 불량게시글로 간주됩니다</Text> */}
                     </View>
                     <TouchableOpacity 
                     onPress={() => setCheck(!check)}

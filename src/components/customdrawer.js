@@ -3,7 +3,7 @@ import {View,TouchableOpacity,Text, Alert,} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import API_CALL from '../ApiCall';
 import {useSelector, useDispatch} from 'react-redux';
-
+import {NaverLogin} from '@react-native-seoul/naver-login';
 import {DrawerContentScrollView,} from '@react-navigation/drawer';
 import AsyncStorage from "@react-native-community/async-storage"
 import { memberInitial } from '../redux/reducer/loginReducer';
@@ -49,7 +49,7 @@ const CustomDrawer = (props) => {
        
     },[])
     
-    const setLogout = async () => {
+    const setLogout = async () => {       
         const form = new FormData()
         form.append('method', 'proc_logout_member')
         form.append('mt_id', member.mt_id)
@@ -59,7 +59,7 @@ const CustomDrawer = (props) => {
         try{
             const api = await API_CALL(url+params, form, false)
             const { data } = api;
-            const { result } = data;
+            const { result,message } = data;
             if(result === "1"){
                 await AsyncStorage.removeItem('saveLogin')
                 dispatch({
@@ -69,23 +69,19 @@ const CustomDrawer = (props) => {
                     type : 'LOGIN',
                     payload : memberInitial
                 })
-            }
-            Alert.alert("제목","로그아웃되었습니다.")
-            navigation.navigate('Home')
-            console.log(api)
-            
+                if(member.mt_login_type=='2'){
+                    NaverLogin.logout();
+                }
+                Alert.alert("","로그아웃되었습니다.")
+                navigation.navigate('Login')
+            }else if(result==='0')Alert.alert("",message)
         }
         catch(e){
             console.log(e)
-            Alert.alert("제목","로그아웃에 실패했습니다.")
+            Alert.alert("","로그아웃에 실패했습니다.")
         }
     } 
-
-   
-    
-    
-
-    const {navigation} = props
+    const {navigation} = props;
     return(
         <>
              <DrawerContentScrollView {...props}>
@@ -183,7 +179,7 @@ const CustomDrawer = (props) => {
                     </View>
                     
                     }
-                    {item.map((item, i) => <TouchableOpacity 
+                    {item?.map((item, i) => <TouchableOpacity 
                         onPress={() => navigation.navigate('Category',{ct_id:item.ct_id, ct_name:item.ct_name})}
                         style={{
                             flexDirection:'row',

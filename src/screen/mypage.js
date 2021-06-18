@@ -2,6 +2,7 @@ import React,{useEffect,useState,useCallback} from 'react';
 import {SafeAreaView, View, Text, ScrollView, Image, TouchableOpacity, Dimensions} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from '../style/style';
+import { useIsFocused  } from '@react-navigation/native';
 import Header, {MypageHeader} from '../components/header';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import BotLine from '../components/bottomline';
@@ -9,12 +10,15 @@ import API_CALL from '../ApiCall';
 export const Width = Dimensions.get('window').width / 4 - 20
 
 const MypageScreen = ({navigation}) => { 
+    const isfocused = useIsFocused();
     const { member } = useSelector(state => state.login)
     const [mypageItem,setMypageItem] = useState([])
     const [starlist,setStarList] = useState(new Array(5).fill(0))
     useEffect(() => {
-        getMypage()
-    }, [])
+        if(isfocused){
+            getMypage()
+        } 
+    }, [isfocused])
     const getMypage = async() => {
         try{
             const form = new FormData;
@@ -24,9 +28,8 @@ const MypageScreen = ({navigation}) => {
             const path = '/json/proc_json.php';
             const api = await API_CALL(url + path, form, true);
             const {data:{result,message,item}} = api;
-            if(result==='0')Alert.alert('Mypage',message)
+            if(result==='0')Alert.alert('',message)
             else if(result==='1'){
-                console.log(item)
                 setMypageItem(item[0])
                 makestars(item[0].rate2)
             }
@@ -35,25 +38,24 @@ const MypageScreen = ({navigation}) => {
         }
     }
     const makestars = (rate) => {
-        useCallback(
-        () => {
-            let arr = Object.assign([],starlist)
-            let rate2 = parseFloat(rate) // rate 넣으면됨 
-            for(let i=0; i<arr.length; i++){
-                if(rate2>i){
-                    if(rate2-(i)>1){
-                        arr[i]=1
-                    }else if(rate2-(i)<1&&rate2-(i)===0.5){
-                        arr[i]=0.5
-                    }
-                }else{
-                    arr[i]=0
+        let arr = Object.assign([],starlist)
+        let rate2 = parseFloat(rate) 
+        for(let i=0; i<arr.length; i++){
+            console.log(rate2,i)
+            if(rate2>i){
+                console.log(rate2-(i))
+                if(rate2-(i)>=1){
+                    arr[i]=1
+                }else if(rate2-(i)<1&&rate2-(i)>0.5){
+                    arr[i]=0.5
                 }
+            }else{
+                arr[i]=0
             }
-            setStarList(arr)
-            },
-        [starlist],
-    )}
+        }
+        console.log(505050,arr)
+        setStarList(arr)
+    }
    
     const renderstars = (val,idx) => {
         if(val===1){
@@ -106,7 +108,6 @@ const MypageScreen = ({navigation}) => {
                                 paddingVertical:3,
                                 marginRight:5,
                             }}>
-                                {/* 여긴 어떻게 처리할지 내일 질문 예정  */}
                                 <Text style={{color:'#477DD1',fontSize:13,lineHeight:18,fontFamily:'NotoSansKR-Medium'}}>사업자</Text> 
                             </View>
                             <View style={{
@@ -127,8 +128,7 @@ const MypageScreen = ({navigation}) => {
                     </View>
                 </View>
                 <View style={{paddingHorizontal:12,paddingTop:20,}}>
-                    {/* 여긴 어떻게 처리할지 내일 질문 예정  */}
-                    <Text style={{fontSize:13,color:'#8B8B8B',lineHeight:18,fontFamily:'NotoSansKR-Regular'}}>중고명품 안전거래를 책임지고 있습니다. 샤넬 종로점 이용 많이 부탁드려요~~</Text>
+                    <Text style={{fontSize:13,color:'#8B8B8B',lineHeight:18,fontFamily:'NotoSansKR-Regular'}}>{mypageItem.mt_memo}</Text>
                 </View>
             </View>
             <BotLine/>
@@ -168,7 +168,7 @@ const MypageScreen = ({navigation}) => {
                     </TouchableOpacity>
                     <TouchableOpacity 
                     style={{width:80,alignItems:'center'}}
-                    onPress={() => navigation.navigate('ReviewList')}
+                    onPress={() => navigation.push('ReviewList')}
                     >
                         <View style={{width:27,height:30,justifyContent:'center',paddingBottom:5,}}>
                             <Image

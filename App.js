@@ -1,17 +1,16 @@
-import React, { useCallback } from 'react';
-import {View, Text, StatusBar,Dimensions} from 'react-native';
-
+import React, { useEffect } from 'react';
+import {View, Text, StatusBar,Dimensions,Alert} from 'react-native';
+import SplashScreen from 'react-native-splash-screen';
 
 import {NavigationContainer} from '@react-navigation/native';
 import {useDispatch, useSelector, Provider} from 'react-redux';
 
 import DrawerNavigator from './src/navigation/DrawerNavigator';
 import {navigationRef} from './src/navigation/RootNavigation';
-
 import Icon from 'react-native-vector-icons/Ionicons'
 import Toast, {BaseToast} from 'react-native-toast-message';
 import store from './src/redux/store';
-
+import messaging from '@react-native-firebase/messaging';
 const Width = Dimensions.get('window').width;
 const ToastWidth = Width - 40;
 
@@ -55,9 +54,16 @@ const toastConfig = {
     </View>
     )
 }
+messaging().onMessage(async remoteMessage => {
+  Alert.alert('A new FCM message arrived!', JSON.stringify(remoteMessage));
+});
 
 const App = () => {
-
+  useEffect(() => {
+    setTimeout(() => {
+      SplashScreen.hide();  
+    }, 1000);
+  }, [])
 
   return (
     <Provider store={store}>

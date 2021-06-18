@@ -102,7 +102,7 @@ const Category = props => {
       </View>
       <ScrollView>
         <View>
-          {categories.map((arr, i) => (
+          {categories?.map((arr, i) => (
             <View key={i}>
               <TouchableOpacity
                 onPress={() => onPressToggle(i)}
@@ -117,7 +117,7 @@ const Category = props => {
               {isClicked === i ? (
                 <View>
                   {arr.ct_name2
-                    ? arr.ct3_list.map((arr2, i2) =>
+                    ? arr.ct3_list?.map((arr2, i2) =>
                         arr2.ct_name3 ? (
                           <TouchableOpacity
                             key={i2}

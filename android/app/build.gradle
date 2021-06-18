@@ -1,5 +1,5 @@
 apply plugin: "com.android.application"
-
+apply plugin: 'com.google.gms.google-services'
 import com.android.build.OutputFile
 
 /**
@@ -132,7 +132,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.ruxtest"
+        applicationId "com.luxboxkorea.aos"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
@@ -147,6 +147,12 @@ android {
         }
     }
     signingConfigs {
+        release{
+            storeFile file('RUXTEST.keystore')
+            storePassword 'dmonster'
+            keyAlias 'dmonster'
+            keyPassword 'dmonster'
+        }
         debug {
             storeFile file('debug.keystore')
             storePassword 'android'
@@ -190,6 +196,9 @@ dependencies {
     implementation "com.facebook.react:react-native:+"  // From node_modules
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
+    implementation platform('com.google.firebase:firebase-bom:28.0.1')
+    implementation 'com.google.firebase:firebase-messaging'
+    implementation 'com.google.firebase:firebase-analytics'
 
     implementation project(':react-native-fs')
 

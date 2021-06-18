@@ -1,6 +1,6 @@
 import React,{useEffect,useState} from 'react';
-import {SafeAreaView, View, ScrollView, TouchableOpacity, Text, StyleSheet,TextInput,Alert,Modal} from 'react-native';
-
+import {SafeAreaView, View, ScrollView, TouchableOpacity, Text, StyleSheet,TextInput,Alert,Modal,Linking} from 'react-native';
+import { useSelector } from 'react-redux';
 import Header, {DetailHead} from '../components/header';
 import Footer from '../components/footer';
 import Product from '../components/product';
@@ -16,6 +16,7 @@ const type=[
 const url = 'http://dmonster1566.cafe24.com';
 const path = '/json/proc_json.php';
 const EstCheck2 = (props) => {
+  const { member } = useSelector(state => state.login);
   const {route:{params},navigation} = props;
   const [detailItem,setDetailItem] = useState([])
   const [price,setPrice] = useState('')
@@ -24,12 +25,12 @@ const EstCheck2 = (props) => {
   const getEstimate = async() => {
     try{
       const form = new FormData;
-      form.append('method','proc_my_estimate_detail')
+      form.append('method','proc_estimate_detail');
       form.append('idx',params.td_idx)
       
       const api = await API_CALL(url+path, form, true)      
       const {data:{result,item}} = api;
-      if(result === "0") return Alert.alert("title","failed")
+      if(result === "0") return Alert.alert("","failed")
       if(result === "1"){
         props.route.params = {...props.route.params,...item[0]}
         setPrice(item[0].td_price)
@@ -37,7 +38,7 @@ const EstCheck2 = (props) => {
         setDetailItem(item[0])
       }
     }catch(e){
-      Alert.alert('EstimateDetail',e)
+      Alert.alert('',e)
     }
   }
 
@@ -48,18 +49,25 @@ const EstCheck2 = (props) => {
   const estmateModify = async() => {
     try{
       const form = new FormData;
-      form.append('method','proc_my_estimate_modify')
-      form.append('idx',detailItem.idx)
-      form.append('td_price',price)
+      let money = price;
+      if(money.indexOf(',')!==-1){
+        money = money.replace(/,/g, '');
+      }
+      form.append('method',member.mb_type==="B"?'proc_estimate_change':'proc_estimate_sell_change');
+      form.append('idx',params.td_idx)
+      form.append('mt_idx',member.mt_idx)
+      form.append('td_price',money)
       form.append('pt_deal_type',dealtype)
+      console.log(form)
       const api = await API_CALL(url+path, form, true);
-      const {data:{result}} = api;
-      if(result==='0'){ Alert.alert('title',message)}
+      
+      const {data:{result,message,item}} = api;      
+      if(result==='0'){ Alert.alert('',message)}
       else if(result==='1'){
         navigation.goBack();
       }
     }catch(e){
-      Alert.alert('EstCheck2',message)
+      Alert.alert('',message)
     }
   }
   return(
@@ -92,21 +100,24 @@ const EstCheck2 = (props) => {
                 value={price}
                 keyboardType="numeric"
                 onChangeText={text=>setPrice(text)}
+                editable={params&&params.success?false:true}
                 />
               </View>
               <View style={styles.textbox}>
                 <View style={{width:'auto'}}>
                   <Text style={styles.texta}>거래유형</Text>
-                  <View style={{width:150,marginVertical:10,zIndex:999}}>
-                    <DefaultPicker placeholder="거래유형 선택" picker={type} onChange={setDealType} value={dealtype}/>
+                  <View style={{marginVertical:10}}>
+                    <DefaultPicker placeholder="거래유형 선택" picker={type} onChange={setDealType} value={dealtype} disabled={params&&params.success?true:false}/>
                   </View>
                 </View>
                 <View style={{}}>
                   <Text style={styles.texta}>입찰입시</Text>
-                  <Text style={[styles.textb, {marginVertical:10}]}>2021.01.16 11:23</Text>
+                  <Text style={[styles.textb, {marginVertical:10}]}>{detailItem.td_wdate}</Text>
                 </View>
               </View>
             </View>
+            {
+              params&&!params.success?
             <View style={{flexDirection:'row',justifyContent:'center',alignItems:'center',}}>
               <TouchableOpacity 
               style={{
@@ -131,7 +142,8 @@ const EstCheck2 = (props) => {
               onPress={()=>setIsvisible(true)}>
                 <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',color:'#fff'}}>입찰하기</Text>
               </TouchableOpacity>
-            </View>
+            </View>:null
+            }
           </View>
           {/* 내 견적 끝 */}
           <Text style={{fontSize:14,fontFamily:'NotoSansKR-Bold',lineHeight:20,paddingBottom:10,}}>구매 시 유의사항</Text>
@@ -142,7 +154,7 @@ const EstCheck2 = (props) => {
             <Text style={{fontSize:13,fontFamily:'NotoSansKR-Regular',lineHeight:20}}>판매자와의 충분한 합의를 하셨나요?</Text>
           </View>
         </View>
-        <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:20,paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#eee',borderTopWidth:1,borderTopColor:'#eee'}}>
+        <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:20,paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#eee',borderTopWidth:1,borderTopColor:'#eee'}} onPress={()=>Linking.openURL('https://thecheat.co.kr/rb/?mod=_search')}>
           <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20}}>구매 전 안전하게 더치트 조회 해보기</Text>
           <Icon name="chevron-forward" size={20} color="#000"/>
         </TouchableOpacity>
@@ -221,9 +233,7 @@ const EstCheck2 = (props) => {
 const styles = StyleSheet.create({
   textbox: {
     flex:1,
-    flexDirection:'row',
     justifyContent:'space-between',
-    alignItems: 'center',
     paddingBottom:10
   },
   texta: {

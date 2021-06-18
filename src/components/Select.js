@@ -43,7 +43,7 @@ const Selector = () => {
   );
 };
 
-export const DefaultPicker = ({picker, placeholder, onChange,value}) => {
+export const DefaultPicker = ({picker, placeholder, onChange,value,disabled=false}) => {
   return (
     <DropDownPicker
       items={picker}
@@ -74,10 +74,44 @@ export const DefaultPicker = ({picker, placeholder, onChange,value}) => {
       zIndex={50000}
       defaultValue={value?value:null}
       onChangeItem={item => onChange(item.value)}
+      disabled={disabled}
     />
   );
 };
-
+export const DefaultCategoryPicker = ({picker, placeholder, onChange,value,setDefaultCategory3}) => {
+  return (
+    <DropDownPicker
+      items={picker}
+      placeholder={placeholder}
+      placeholderStyle={{color: '#C9C9C9'}}
+      style={{
+        borderWidth: 1,
+        borderColor: '#eee',
+        borderRadius: 8,
+        backgroundColor: '#fff',
+        height: 35,
+      }}
+      containerStyle={{height: 35}}
+      dropDownStyle={{borderColor: '#eee', borderWidth: 1}}
+      globalTextStyle={{
+        fontSize: 11,
+        lineHeight: 12,
+        fontFamily: 'NotoSansKR-Regular',
+      }}
+      itemStyle={{justifyContent: 'flex-start'}}
+      arrowColor="#447DD1"
+      customArrowDown={() => (
+        <Image width={20} source={require('../images/select_box_arr.png')} />
+      )}
+      customArrowUp={() => (
+        <Image width={20} source={require('../images/select_box_arr.png')} />
+      )}
+      zIndex={50000}
+      defaultValue={value?value:null}
+      onChangeItem={item => {onChange(item.value),setDefaultCategory3(item.list)}}
+    />
+  );
+};
 const styles = StyleSheet.create({
   selectItem: {
     fontSize: 12,

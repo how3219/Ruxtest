@@ -1,5 +1,5 @@
 import React, {useState,useEffect} from 'react';
-import {SafeAreaView, View, ScrollView, TouchableOpacity, Text, StyleSheet,Modal, Alert, TextInput} from 'react-native';
+import {SafeAreaView, View, ScrollView, TouchableOpacity, Text, StyleSheet,Modal, Alert, Linking} from 'react-native';
 import Header, {DetailHead} from '../components/header';
 import Footer from '../components/footer';
 import Product from '../components/product';
@@ -24,15 +24,14 @@ const EstDetail = (props) => {
       const api = await API_CALL(url+path, form, true)
       const {data:{result,item}} = api;
 
-      if(result === "0") return Alert.alert("title","failed")
+      if(result === "0") return Alert.alert("","failed")
       if(result === "1"){
-        
-        props.route.params = {...props.route.params,...item[0]}
+        props.route.params = {...props.route.params,...item[0]}        
         setPrice(item[0].td_price)
         setDetailItem(item[0])
       }
     }catch(e){
-      Alert.alert('제목','EstimateDetail')
+      Alert.alert('','EstimateDetail')
     }
   }
   const cancleEstimate = async() => {
@@ -42,7 +41,7 @@ const EstDetail = (props) => {
         form.append('idx',detailItem.idx)
         const api = await API_CALL(url+path, form, true)
         const {data:{result,message}} = api;
-        if(result==='0'){ Alert.alert('title',message)}
+        if(result==='0'){ Alert.alert('',message)}
         else if(result==='1'){
           navigation.goBack();
         }
@@ -59,7 +58,7 @@ const EstDetail = (props) => {
       form.append('pt_deal_type',detailItem.pt_deal_type)
       const api = await API_CALL(url+path, form, true)
       const {data:{result,message}} = api;
-      if(result==='0'){ Alert.alert('title',message)}
+      if(result==='0'){ Alert.alert('',message)}
       else if(result==='1'){
         
       }
@@ -114,7 +113,9 @@ const EstDetail = (props) => {
                 <TouchableOpacity style={styles.btnbox} onPress={()=>cancleEstimate()}>
                     <Text style={styles.btncont}>견적 취소</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{flex:1,backgroundColor:'#477DD1',height:57,justifyContent: 'center',alignItems: 'center'}}>
+                <TouchableOpacity style={{flex:1,backgroundColor:'#477DD1',height:57,justifyContent: 'center',alignItems: 'center'}} onPress={()=>{navigation.navigate('ChatDetail',{
+                  mt_idx:detailItem.m_idx
+                })}}>
                     <Text style={styles.btncont}>채팅 하기</Text>
                 </TouchableOpacity>
             </View>
@@ -128,7 +129,7 @@ const EstDetail = (props) => {
             <Text style={{fontSize:13,fontFamily:'NotoSansKR-Regular',lineHeight:20}}>판매자와의 충분한 합의를 하셨나요?</Text>
           </View>
         </View>
-        <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:20,paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#eee',borderTopWidth:1,borderTopColor:'#eee'}}>
+        <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:20,paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#eee',borderTopWidth:1,borderTopColor:'#eee'}} onPress={()=>Linking.openURL('https://thecheat.co.kr/rb/?mod=_search')}>
           <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20}}>구매 전 안전하게 더치트 조회 해보기</Text>
           <Icon name="chevron-forward" size={20} color="#000"/>
         </TouchableOpacity>

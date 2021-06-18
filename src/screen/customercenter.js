@@ -14,35 +14,36 @@ const CustomerCenter = ({navigation}) => {
             <View style={{flex:1}}>
                 <TouchableOpacity 
                     style={styles.item}
-                    onPress={() => navigation.navigate('Useredit')}
+                    onPress={() => navigation.navigate('ScamPrevention')}
                     >
                     <Text style={styles.text}>사기방지 가이드</Text>
                     <Icon name="chevron-forward" size={20} color="#AAAAAA"/>
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={styles.item}
-                    onPress={() => navigation.navigate('Useredit')}
+                    onPress={()=>navigation.push('Notice')}
                     >
                     <Text style={styles.text}>공지사항</Text>
                     <Icon name="chevron-forward" size={20} color="#AAAAAA"/>
                 </TouchableOpacity>
+                {/* 따로만들어야함 */}
                 <TouchableOpacity 
                     style={styles.item}
-                    onPress={() => navigation.navigate('Useredit')}
+                    onPress={()=>{navigation.push('Question')}}
                     >
                     <Text style={styles.text}>1:1 문의</Text>
                     <Icon name="chevron-forward" size={20} color="#AAAAAA"/>
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={styles.item}
-                    onPress={() => navigation.navigate('Useredit')}
+                    onPress={()=>navigation.push('Faq')}
                     >
                     <Text style={styles.text}>FAQ</Text>
                     <Icon name="chevron-forward" size={20} color="#AAAAAA"/>
                 </TouchableOpacity>
                 <TouchableOpacity 
                     style={styles.item}
-                    onPress={() => navigation.navigate('Useredit')}
+                    onPress={() => navigation.navigate('Useredit',{type:'Privacy'})}
                     >
                     <Text style={styles.text}>개인정보처리방침</Text>
                     <Icon name="chevron-forward" size={20} color="#AAAAAA"/>
@@ -58,7 +59,7 @@ const CustomerCenter = ({navigation}) => {
                         borderBottomColor:'#eee',
                         borderBottomWidth:0,
                     }}
-                    onPress={() => navigation.navigate('Useredit')}
+                    onPress={() => navigation.navigate('Useredit',{type:'terms'})}
                     >
                     <Text style={styles.text}>이용약관</Text>
                     <Icon name="chevron-forward" size={20} color="#AAAAAA"/>

@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react';
-import {SafeAreaView, View, ScrollView, TouchableOpacity, Text, StyleSheet} from 'react-native';
+import {SafeAreaView, View, ScrollView, TouchableOpacity, Text, StyleSheet,Linking} from 'react-native';
 import API_CALL from '../ApiCall';
 import Header, {DetailHead} from '../components/header';
 import Footer from '../components/footer';
@@ -19,7 +19,7 @@ const EstCheck = (props) => {
     form.append('idx',params.idx)
     const api = await API_CALL(url+path, form, true)
     const {data:{result,item,message}} = api;
-    if(result === "0") return Alert.alert("EstCheck",message)
+    if(result === "0") return Alert.alert("",message)
     if(result === "1"){
       setEstItem(item[0])
     }
@@ -65,7 +65,7 @@ const EstCheck = (props) => {
             <Text style={{fontSize:13,fontFamily:'NotoSansKR-Regular',lineHeight:20}}>판매자와의 충분한 합의를 하셨나요?</Text>
           </View>
         </View>
-        <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:20,paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#eee',borderTopWidth:1,borderTopColor:'#eee'}}>
+        <TouchableOpacity style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:20,paddingVertical:15,borderBottomWidth:1,borderBottomColor:'#eee',borderTopWidth:1,borderTopColor:'#eee'}} onPress={()=>Linking.openURL('https://thecheat.co.kr/rb/?mod=_search')}>
           <Text style={{fontSize:16,fontFamily:'NotoSansKR-Medium',lineHeight:20}}>구매 전 안전하게 더치트 조회 해보기</Text>
           <Icon name="chevron-forward" size={20} color="#000"/>
         </TouchableOpacity>

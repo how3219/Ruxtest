@@ -93,7 +93,7 @@ const ProductRegistCategory1 = props => {
       </View>
       <ScrollView>
         <View>
-          {item.map((arr, i) => (
+          {item?.map((arr, i) => (
             <View key={i}>
               <TouchableOpacity
                 onPress={() => onPressToggle(i)}

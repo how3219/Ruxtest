@@ -2,8 +2,6 @@ import React from 'react';
 import {View, Text} from 'react-native';
 import {createStackNavigator} from '@react-navigation/stack';
 import { useSelector } from 'react-redux';
-
-
 import Header from '../components/header';
 import MainScreen from '../screen/main';
 import EstimateScreen from '../screen/estimate';
@@ -39,18 +37,33 @@ import AppraisalCostGuide from '../screen/AppraisalCostGuide';
 import Appraise from '../screen/Appraise';
 import AppraiseWrite from '../screen/AppraiseWrite';
 import AppraiseWriteComplete from '../screen/AppraiseWriteComplete';
+import AppraiseDetail from '../screen/AppraiseDetail';
 import Login from '../screen/Login';
 import RegisterAgree from '../screen/RegisterAgree';
 import Register from '../screen/Register';
 import RegisterFinish from '../screen/RegisterFinish';
 import RegisteredProduct from '../screen/RegisteredProduct';
 import ReigsteredProductInfo from '../screen/ReigsteredProductInfo';
+import RegisterDetail from '../screen/Registerdetail';
 import Category from '../screen/category';
 import TermsOfService from '../screen/TermsOfService';
 import PrivacyPolicy from '../screen/PrivacyPolicy';
 import OrderInformation from '../screen/OrderInformation';
 import CustomDrawer from '../components/customdrawer';
-
+import FaqScreen from '../screen/FaqScreen';
+import NoticeScreen from '../screen/NoticeScreen';
+import NoticeDetail from '..//screen/NoticeDetail';
+import Withdrawal from '../screen/Withdrawal';
+import WithdrawalComplete from '../screen/WithdrawalComplete';
+import AddMember from '../screen/Addmember';
+import QuestionScreen from '../screen/QuestionScreen';
+import QuestionAdd from '../screen/QestionAdd';
+import KeywordList from '../screen/Keywordlist';
+import ScamPrevention from '../screen/ScamPrevention';
+import ProfileScreen from '../screen/ProfileScreen';
+import PwfindScreen from '../screen/PwfindScreen';
+import IdfindScreen from '../screen/IdfindScreen';
+import Declaration from '../screen/Declaration';
 const Stack = createStackNavigator();
 
 export const MainStack = () => {
@@ -62,7 +75,7 @@ export const MainStack = () => {
           screenOptions={{
             headerShown: false,
           }}
-          initialRouteName="Main"
+          initialRouteName={!isLoggedin?"Login":"Main"}
           >
             <Stack.Screen name="Main" component={MainScreen}/>
             <Stack.Screen name="CustomDrawer" component={CustomDrawer}/>
@@ -87,6 +100,10 @@ export const MainStack = () => {
             <Stack.Screen name="Appraise" component={Appraise}/>
             <Stack.Screen name="AppraiseWrite" component={AppraiseWrite}/>
             <Stack.Screen name="AppraiseWriteComplete" component={AppraiseWriteComplete}/>
+            <Stack.Screen name="AppraiseDetail" component={AppraiseDetail}/>
+            <Stack.Screen name="KeywordList" component={KeywordList}/>
+            <Stack.Screen name="ScamPrevention" component={ScamPrevention}/>
+            <Stack.Screen name="ProfileScreen" component={ProfileScreen}/>
             {!isLoggedin &&  <Stack.Screen name="Login" component={Login}/>}
             
             <Stack.Screen name="RegisterAgree" component={RegisterAgree}/>
@@ -104,7 +121,7 @@ export const MainStack = () => {
             <Stack.Screen name="FavoriteList" component={FavoriteList}/>
             <Stack.Screen name="DeliveryCheck" component={DeliveryCheck}/>
             <Stack.Screen name="Setting" component={Setting}/>
-            <Stack.Screen name="Useredit" component={Useredit}/>
+            <Stack.Screen name="Useredit" component={Useredit}/>            
             <Stack.Screen name="CustomerCenter" component={CustomerCenter}/>
             <Stack.Screen name="NotiSetting" component={NotiSetting}/>
             <Stack.Screen name="KeywordSet" component={KeywordSet}/>
@@ -112,6 +129,8 @@ export const MainStack = () => {
             <Stack.Screen name="Category" component={Category}/>
             <Stack.Screen name="TermsOfService" component={TermsOfService}/>
             <Stack.Screen name="PrivacyPolicy" component={PrivacyPolicy}/>
+            <Stack.Screen name="PwfindScreen" component={PwfindScreen}/>
+            <Stack.Screen name="IdfindScreen" component={IdfindScreen}/>
         </Stack.Navigator>
     );
 };
@@ -140,6 +159,13 @@ export const ChatStack = () => {
             <Stack.Screen name="ChatDetail" component={ChatDetail}/>
             <Stack.Screen name="PurchaseOrder" component={PurchaseOrder}/>
             <Stack.Screen name="EstCheck2" component={EstCheck2}/>
+            <Stack.Screen name="AppraiseWrite" component={AppraiseWrite}/>
+            <Stack.Screen name="ReviewWrite" component={ReviewWrite}/>
+            <Stack.Screen name="ReviewComplete" component={ReviewComplete}/>
+            <Stack.Screen name="ScamPrevention" component={ScamPrevention}/>
+            <Stack.Screen name="DeliveryCheck" component={DeliveryCheck}/>
+            <Stack.Screen name="ProfileScreen" component={ProfileScreen}/>
+            <Stack.Screen name="OrderInformation" component={OrderInformation}/>
         </Stack.Navigator>
     );
 };
@@ -171,6 +197,19 @@ export const MypageStack = () => {
             <Stack.Screen name="Appraise" component={Appraise}/>
             <Stack.Screen name="AppraiseWrite" component={AppraiseWrite}/>
             <Stack.Screen name="AppraiseWriteComplete" component={AppraiseWriteComplete}/>
+            <Stack.Screen name="AppraiseDetail" component={AppraiseDetail}/>
+            <Stack.Screen name="Faq" component={FaqScreen}/>
+            <Stack.Screen name="Notice" component={NoticeScreen}/>
+            <Stack.Screen name="NoticeDetail" component={NoticeDetail}/>
+            <Stack.Screen name="Question" component={QuestionScreen}/>
+            <Stack.Screen name="QuestionAdd" component={QuestionAdd}/>
+            <Stack.Screen name="Withdrawal" component={Withdrawal}/>
+            <Stack.Screen name="WithdrawalComplete" component={WithdrawalComplete}/>
+            <Stack.Screen name="RegisterDetail" component={RegisterDetail}/>
+            <Stack.Screen name="Addmember" component={AddMember}/>
+            <Stack.Screen name="ScamPrevention" component={ScamPrevention}/>
+            <Stack.Screen name="EstCheck" component={EstCheck}/>
+            <Stack.Screen name="Declaration" component={Declaration}/>
         </Stack.Navigator>
     );
 };

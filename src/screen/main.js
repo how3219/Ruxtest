@@ -1,17 +1,15 @@
-import React, {useState, useEffect, useCallback } from 'react';
+import React, {useState, useEffect } from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {
   View,
   Text,
   Image,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  StyleSheet,
+  TouchableOpacity,  
+  SafeAreaView,
   ScrollView,
-  Flatlist,
   Dimensions,
 } from 'react-native';
-
+import { useIsFocused } from '@react-navigation/native';
 import styles from '../style/style';
 import Header from '../components/header';
 // import Footer from '../components/footer';
@@ -19,7 +17,6 @@ import MainSlide from '../components/main_slide';
 import {NewPrd, MainReview} from '../components/maincomp';
 import API_CALL from '../ApiCall'
 import Toast from 'react-native-toast-message'
-
 import AsyncStorage from "@react-native-community/async-storage"
 
 export const Width = Dimensions.get('window').width;
@@ -27,7 +24,8 @@ export const Boxwidth = Width / 2 - 30;
 export const Boxheight = Boxwidth * 1.4;
 
 const MainScreen = ({navigation}) => {
-
+  const isfoucsed = useIsFocused();
+  const [focused,setFocused] = useState(isfoucsed);
   const typeAlert = () => {
       Toast.show({
         type:'my_custom_type',
@@ -35,23 +33,16 @@ const MainScreen = ({navigation}) => {
         visibilityTime:2000,
       })
   }
-  
-  
-
   const dispatch = useDispatch()
-
-  
   const {user} = useSelector(state => state.users)
   const {isLoggedin} = useSelector(state => state.users)
   const {member} = useSelector(state => state.login)
-
-  console.log(user)
-  
-
   useEffect(()=>{
-    setLogin()
+    if(member.mt_login_type!=='2'||member.mt_login_type!=='3') {
+      setLogin()
+    }   
   },[])
-
+  
 
     const setLogin = async () => {
 
@@ -67,14 +58,12 @@ const MainScreen = ({navigation}) => {
           const url = 'http://dmonster1566.cafe24.com'
           const path = '/json/proc_json.php'
           try{
-          
               const api = await API_CALL(url+path, form, false)
-              console.log(api)
               const { data } = api;
               const { item, result } = data;
-              if(result === "0") return Alert.alert('제목', "로그인 실패")
+              if(result === "0") return Alert.alert('', "로그인 실패")
               if(result === "1" && item){
-                  console.log(item)
+                console.log(item)
                   dispatch({
                       type : 'LOGIN',
                       payload : item[0]
@@ -101,7 +90,7 @@ const MainScreen = ({navigation}) => {
 
 
     return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
         <Header/>
         <ScrollView style={styles.content}>
           {member.mb_type === "B" 
@@ -181,7 +170,7 @@ const MainScreen = ({navigation}) => {
         </View>
         <View style={{justifyContent:'center',alignItems:'center'}}>
           <TouchableOpacity 
-          onPress={() => navigation.navigate('Tracking')}
+          onPress={() => navigation.push('DeliveryCheck')}
           style={{backgroundColor:'#eee',width:200,height:50,justifyContent:'center',alignItems:'center',marginBottom:10,}}>
             <Text style={{fontSize:15,}}>
               운송장조회
@@ -217,7 +206,7 @@ const MainScreen = ({navigation}) => {
           <Text style={styles.footText}>COPYRIGHT © 2021 DEALMATE LTD ALL RIGHTS RESERVED</Text>
         </View>
         </ScrollView>
-    </View>
+    </SafeAreaView>
       );
 }
 

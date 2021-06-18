@@ -1,56 +1,93 @@
-import React, {useState} from 'react';
-import {SafeAreaView, View, Text,TouchableOpacity, TextInput} from 'react-native';
+import React, {useState,useEffect} from 'react';
+import {SafeAreaView, View, Text,TouchableOpacity, TextInput,Alert} from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
+import {useSelector,useDispatch} from 'react-redux';
 import {MypageHeader} from '../components/header';
-
+import API_CALL from '../ApiCall';
 const KeywordSet = ({navigation}) => {
-    const [state,setState] = useState('on');
+    const {member} = useSelector(state => state.login);
+    const dispatch = useDispatch()
+    const [keywordlist,setKeywordList] = useState([]);
+    const [key,setKey] = useState('');
+    const [state,setState] = useState(member.mt_pushing6);
+    useEffect(() => {
+       getkeyword()                 
+    }, [])
+    const getkeyword = async() => {
+        const form = new FormData()
+        form.append('method', 'proc_keyword_list')
+        form.append('mt_idx', member.mt_idx)
+        const url = 'http://dmonster1566.cafe24.com';
+        const path = '/json/proc_json.php';
+        const api = await API_CALL(url + path, form, false);
+        console.log(form)
+        const {
+        data: {result, message,item},
+        } = api;
+        if (result === '0') {
+            return Alert.alert('', message);
+        } else if (result === '1') { 
+            console.log(item)
+            if(item)setKeywordList(item)
+        }
+    }
+    const delkeyword = async(idx) => {
+        const form = new FormData()
+        form.append('method', 'proc_keyword_delete')
+        form.append('idx', idx)
+        const url = 'http://dmonster1566.cafe24.com';
+        const path = '/json/proc_json.php';
+        const api = await API_CALL(url + path, form, false);
+        const {
+        data: {result, message,item},
+        } = api;
+        if (result === '0') {
+            return Alert.alert('', message);
+        } else if (result === '1') {   
+            getkeyword()      
+        }
+    }
+    const addkeyword = async() => {
+        const form = new FormData()
+        form.append('method', 'proc_keyword_add')
+        form.append('mt_idx', member.mt_idx)
+        form.append('slt_keyword', key)        
+        const url = 'http://dmonster1566.cafe24.com';
+        const path = '/json/proc_json.php';
+        const api = await API_CALL(url + path, form, false);
+        const {
+        data: {result, message,item},
+        } = api;
+        if (result === '0') {
+            return Alert.alert('', message);
+        } else if (result === '1') { 
+            getkeyword();
+        }
+    }
+    const pushSetting = async(val) => {
+        const form = new FormData()
+        form.append('method', 'proc_push_config')
+        form.append('mt_idx', member.mt_id)
+        form.append('mt_pushing6', state)
+        const url = 'http://dmonster1566.cafe24.com';
+        const path = '/json/proc_json.php';
+        const api = await API_CALL(url + path, form, false);
+        const {
+        data: {result, message,item},
+        } = api;
+        if (result === '0') {
+            return Alert.alert('', message);
+        } else if (result === '1') { 
+            let body = Object.assign({},member)
+            body.mt_pushing6 = val;
+            dispatch({
+                type : 'LOGIN',
+                payload :body
+            })
+            setState(val)                     
+        }
+    }
     
-    const keyitems= [
-        {
-            id:1,
-            title:"명품백"
-        },
-        {
-            id:2,
-            title:"시계"
-        },
-        {
-            id:3,
-            title:"트위드"
-        },
-        {
-            id:4,
-            title:"쥬얼리"
-        },
-        {
-            id:5,
-            title:"오버핏 후드티"
-        },
-        {
-            id:6,
-            title:"반지갑"
-        },
-        {
-            id:7,
-            title:"단화"
-        },
-        {
-            id:8,
-            title:"장화"
-        },
-        {
-            id:9,
-            title:"스커트"
-        },
-        {
-            id:10,
-            title:"언더웨어"
-        },
-    ]
-
-
     return(
         <SafeAreaView style={{flex:1,backgroundColor:'#fff'}}>
             <MypageHeader/>
@@ -58,35 +95,35 @@ const KeywordSet = ({navigation}) => {
                 <Text style={{fontSize:16,fontFamily:'NotoSansKR-Bold',lineHeight:20,}}>키워드 알림 설정</Text>
                 <View style={{width:102,height:35,borderRadius:8,backgroundColor:'#DEDEDE',flexDirection:'row',justifyContent:'center',alignItems:'center',marginVertical:10,}}>
                     <TouchableOpacity 
-                    onPress ={() => setState('on')}
+                    onPress ={() => {pushSetting('Y')}}
                     style={{
                         width:51,
                         height:35,
                         borderRadius:8,
-                        backgroundColor: state === 'on' ? '#477DD1' : null,
+                        backgroundColor: state === 'Y' ? '#477DD1' : null,
                         justifyContent:'center',
                         alignItems:'center',
                     }}> 
                         <Text 
                         style={{
-                            color: state === 'on' ? '#fff' : '#999999',
+                            color: state === 'Y' ? '#fff' : '#999999',
                             fontFamily:'NotoSansKR-Bold',
                             lineHeight:20,
                         }}>ON</Text>
                     </TouchableOpacity>
                     <TouchableOpacity 
-                    onPress ={() => setState('off')}
+                    onPress ={() => {pushSetting('N')}}
                     style={{
                         width:51,
                         height:35,
                         borderRadius:8,
-                        backgroundColor: state === 'off' ? '#477DD1' : null,
+                        backgroundColor: state === 'N' ? '#477DD1' : null,
                         justifyContent:'center',
                         alignItems:'center',
                     }}> 
                         <Text 
                         style={{
-                            color: state === 'off' ? '#fff' : '#999999',
+                            color: state === 'N' ? '#fff' : '#999999',
                             fontFamily:'NotoSansKR-Bold',
                             lineHeight:20,
                         }}>OFF</Text>
@@ -105,9 +142,10 @@ const KeywordSet = ({navigation}) => {
                         }}>
                         <Text style={{fontSize:20,color:'#707070',fontFamily:'NotoSansKR-Regular',lineHeight:26,}}>#</Text>
                         <TextInput
-                            style={{padding:0,paddingLeft:7,flex:1,height:45}}
+                            style={{padding:0,paddingLeft:7,flex:1,height:45,color:'#000'}}
                             placeholder="키워드를 입력해주세요."
                             placeholderTextColor="#C9C9C9"
+                            onChangeText={text=>setKey(text)}
                         />
                     </View>
                     <TouchableOpacity style={{
@@ -118,7 +156,8 @@ const KeywordSet = ({navigation}) => {
                         justifyContent:'center',
                         alignItems:'center',
                         marginLeft:5,
-                    }}>
+                    }}
+                    onPress={()=>addkeyword()}>
                         <Text style={{fontSize:13,fontFamily:'NotoSansKR-Bold',color:'#fff'}}>키워드 추가</Text>
                     </TouchableOpacity>
                 </View>
@@ -127,8 +166,8 @@ const KeywordSet = ({navigation}) => {
                     paddingVertical:16,
                     flexWrap:'wrap', 
                 }}>
-                   {keyitems.map((keyitem) => (
-                        <Array key={keyitem.id} keyitem={keyitem}/>
+                   {keywordlist?.map((keyitem) => (
+                        <Array key={keyitem.idx} keyitem={keyitem} delkeyword={delkeyword}/>
                     ))} 
                 </View>
             </View>
@@ -136,7 +175,7 @@ const KeywordSet = ({navigation}) => {
     );
 };
 
-function Array({keyitem}){
+function Array({keyitem,delkeyword}){
     return(
         <View style={{
             flexDirection:'row',
@@ -148,8 +187,8 @@ function Array({keyitem}){
             borderRadius:8,
             marginBottom:5,marginRight:5,
         }}>
-            <Text style={{fontSize:13,fontFamily:'NotoSansKR-Regular',lineHeight:16,color:'#707070',paddingRight:5}}># {keyitem.title}</Text>
-            <TouchableOpacity>
+            <Text style={{fontSize:13,fontFamily:'NotoSansKR-Regular',lineHeight:16,color:'#707070',paddingRight:5}}># {keyitem.slt_keyword}</Text>
+            <TouchableOpacity onPress={()=>{delkeyword(keyitem.idx)}}>
                   <Icon name="close" size={13} color="#707070" />
             </TouchableOpacity>
         </View>

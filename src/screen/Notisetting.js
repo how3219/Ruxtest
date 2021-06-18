@@ -19,22 +19,6 @@ const NotiSetting = ({navigation}) => {
                     <Text style={styles.text}>키워드 알림 설정</Text>
                     <Icon name="chevron-forward" size={20} color="#AAAAAA"/>
                 </TouchableOpacity>
-                <TouchableOpacity 
-                    style={{
-                        backgroundColor:'#F8F8F8',
-                        flexDirection:'row',
-                        height:50,
-                        justifyContent:'space-between',
-                        alignItems:'center',
-                        paddingHorizontal:20,
-                        borderBottomColor:'#eee',
-                        borderBottomWidth:0,
-                    }}
-                    onPress={() => navigation.navigate('Useredit')}
-                    >
-                    <Text style={styles.text}>위시리스트 알림 설정</Text>
-                    <Icon name="chevron-forward" size={20} color="#AAAAAA"/>
-                </TouchableOpacity>
             </View>
         </SafeAreaView>
     );

@@ -8,6 +8,7 @@ import {
   Modal,
   Dimensions,
   ScrollView,
+  SafeAreaView,
   Alert,
 } from 'react-native';
 import styles from '../style/style';
@@ -23,14 +24,10 @@ import API_CALL from '../ApiCall';
  
 const prdPicker= [
   {label:'인기상품순' , value:'인기상품순'},
-  {label:'인기상품순' , value:'인기상품순'},
-  {label:'인기상품순' , value:'인기상품순'},
 ]
 
 const reviewPicker= [
-  {label:'제품명' , value:'제품명'},
-  {label:'제품명' , value:'제품명'},
-  {label:'제품명' , value:'제품명'},
+  {label:'제품명' , value:'pt_title'},
 ]
 
 const estPicker= [
@@ -49,18 +46,11 @@ const Header = () => {
   const dispatch = useDispatch();
 
   const {member} = useSelector(state => state.login)
-  // console.log('before', member)
   const [mb_type,setMb_type] = useState('B')
-
+  console.log(member)
   // useEffect(()=>{
    
   // },[])
-  
-
-
-  
-
-
   const setMemType = async (mb_type) => {
     // console.log("m", member)
     console.log(mb_type)
@@ -79,16 +69,9 @@ const Header = () => {
       if(result === '0') return Alert.alert("제목",message)
       if(result === '1') {
         console.log("item", item[0])
-
         const changeData = Object.assign({}, item[0]);
-
-        // console.log('a',changeData)
-        // console.log('ba',changeData)
-
-
         const memberConvert = Object.assign( member, changeData)
 
-      
         console.log(memberConvert)
         dispatch({
           type:'LOGIN',
@@ -105,7 +88,7 @@ const Header = () => {
     }
     catch(e){
       console.log("change Error" ,e)
-      Alert.alert("제목","전환 실패 에러")
+      Alert.alert("","전환 실패 에러")
     }
   
   }
@@ -142,138 +125,6 @@ const Header = () => {
   )
 }
 
-export const HeaderA = () => {
-  const[modalOpen, setModalOpen] = useState(false);
-
-  
-
-  return(
-    <>
-      <View style={styles.header,{zIndex:999}}>
-          <DefaultHead/>
-          <View style={{flexDirection:'row', justifyContent: 'space-between',alignItems: 'center',paddingHorizontal: 15,paddingVertical: 10,height:45}}>
-                <View style={{width:100,marginRight:5,}}>
-                  <DefaultPicker picker={prdPicker} placeholder="인기상품순"/>
-                </View>
-              <View style={{flex:2, flexDirection: 'row',borderColor:'#eee',borderWidth:1,borderRadius:8,height:35,justifyContent:'space-between',alignItems: 'center',paddingHorizontal: 6,}}>
-                <TextInput
-                  placeholder="상품명을 입력하세요"
-                  style={{height:35,alignItems:'center',fontSize:12,lineHeight:14,padding:0,flex:1,}}
-                  placeholderTextColor={'#C9C9C9'}
-                />
-                <TouchableOpacity>
-                    <Image
-                    style={{resizeMode: 'contain',width:20,}}
-                    source={require('../images/img_hd01.png')}/>
-                </TouchableOpacity>
-              </View>
-              <TouchableOpacity 
-              style={{flexDirection: 'row', borderRadius: 8,backgroundColor: "#477DD1",height:35,alignItems: 'center',justifyContent: 'center',width:70,marginLeft:5,}}
-              onPress={() => setModalOpen(true)}
-              >
-                <Text style={{color:'#fff',paddingRight: 5,fontFamily:'NotoSansKR-Medium',lineHeight:20}}>필터</Text>
-                <View style={{width:12,}}>
-                  <Image 
-                  style={{resizeMode:'contain',width:'100%'}}
-                  source={require('../images/ico_filter.png')}/>
-                </View>
-              </TouchableOpacity>
-          </View>
-      </View>
-      <Modal 
-        visible={modalOpen} 
-        animationType={"slide"}
-        transparent={true}
-        style={{flex:1}}
-        onRequestClose={() => setModalOpen(false)}
-      >
-        <View 
-          style={{
-            position:'absolute',
-            top:0,bottom:0,left:0,right:0,
-            backgroundColor:'rgba(0,0,0,0.4)', 
-            justifyContent:'flex-end',
-            }}>
-              <View style={{
-              paddingHorizontal:20,
-              paddingTop:20,
-              backgroundColor:'#fff',
-              height:Height,
-              borderTopLeftRadius:10,
-              borderTopRightRadius:10,
-              }}>
-              <ScrollView showsVerticalScrollIndicator={false}>
-                  <Text style={{fontSize:18,fontFamily:'NotoSansKR-Bold',lineHeight:20,}}>쇼핑몰 필터</Text>
-                  <View style={{paddingBottom:30,}}>
-                      <Text style={{
-                        fontFamily:'NotoSansKR-Medium',
-                        color:'#999999',
-                        fontSize:14,
-                      }}>브랜드 
-                      <Text style={{fontSize:12,color:'#B7B7B7'}}>  (선택1)</Text></Text>
-                      <View style={{flexDirection:'row',flexWrap:'wrap',}}>
-                          <FtrBrand/>
-
-                      </View>
-                  </View>
-                  <View style={{paddingBottom:30,}}>
-                      <Text style={{
-                        fontFamily:'NotoSansKR-Medium',
-                        color:'#999999',
-                        fontSize:14,
-                      }}>카테고리 
-                      <Text style={{fontSize:12,color:'#B7B7B7'}}>  (선택1)</Text></Text>
-                      <View style={{flexDirection:'row',flexWrap:'wrap',}}>
-                          <FtrCategory/>
-
-                      </View>
-                  </View>
-                  <View style={{paddingBottom:30,}}>
-                      <Text style={{
-                        fontFamily:'NotoSansKR-Medium',
-                        color:'#999999',
-                        fontSize:14,
-                      }}>거래유형</Text>
-                      <View style={{flexDirection:'row',flexWrap:'wrap',}}>
-                          <FtrType/>
-                      </View>
-                  </View>
-                  <View style={{marginBottom:10,}}>
-                    <Text style={{
-                      fontFamily:'NotoSansKR-Medium',
-                      color:'#999999',
-                      fontSize:14,
-                    }}>가격대</Text>
-                    <View style={{flex:1}}>
-                        <FtrPrice/>
-                    </View>
-                  </View>
-                  <View style={{flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingBottom:20,}}>
-                      <TouchableOpacity style={{flexDirection:'row',alignItems:'center',}}>
-                          <Icon name="refresh-outline" size={20} color="#444" style={{marginRight:5,}}/>
-                          <Text style={{fontSize:13,fontFamily:'NotoSansKR-Medium'}}>필터 초기화</Text>
-                      </TouchableOpacity>
-                      <TouchableOpacity 
-                        onPress={() => setModalOpen(false)}
-                          style={{
-                              backgroundColor:'#447DD1',
-                              height:45,
-                              width:200,
-                              justifyContent:'center',
-                              alignItems:'center',
-                              borderRadius:8,
-                          }}>
-                          <Text style={{fontSize:13,fontFamily:'NotoSansKR-Medium',color:'#fff'}}>선택완료</Text>
-                      </TouchableOpacity>
-                  </View>
-              </ScrollView>
-          </View>
-        </View>
-      </Modal>
-    </>
-  );
-};
-
 export const DetailHead = ({title}) => {
   const navigation = useNavigation();
   return(
@@ -288,8 +139,7 @@ export const DetailHead = ({title}) => {
   );
 };
 
-export const EstHeader = ({title}) => {
-
+export const EstHeader = ({title,setSearch,search,getEstData,setPt_deal_type}) => {
   const {member} = useSelector(state => state.login)
 
   const dispatch = useDispatch();
@@ -303,7 +153,6 @@ export const EstHeader = ({title}) => {
 
   const setMemType = async (mb_type) => {
     // console.log("m", member)
-    console.log(mb_type)
     const form = new FormData
     form.append('method','proc_seller_change')
     form.append('mt_idx',member.mt_idx)
@@ -345,7 +194,7 @@ export const EstHeader = ({title}) => {
     }
     catch(e){
       console.log("change Error" ,e)
-      Alert.alert("제목","전환 실패 에러")
+      Alert.alert("","전환 실패 에러")
     }
   
   }
@@ -366,7 +215,7 @@ export const EstHeader = ({title}) => {
                 alignItems:'center',
             }}>
               <View style={{flex:1,marginRight:5,}}>
-                <DefaultPicker placeholder="거래방식 선택" picker={estPicker}/>
+                <DefaultPicker placeholder="거래방식 선택" picker={estPicker} onChange={setPt_deal_type}/>
               </View>
             <View style={{flexDirection:'row',backgroundColor:'#DEDEDE',borderRadius:8,width:120,height:35,justifyContent:'space-between',alignItems:'center'}}>
                 <TouchableOpacity
@@ -383,17 +232,21 @@ export const EstHeader = ({title}) => {
         </View>
         <View style={{marginHorizontal: 15,borderWidth:1,borderColor:'#eee',borderRadius:8,height:35,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingHorizontal: 10}}>
           <TextInput
-            style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontSize:13}}
+            style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontSize:13,color:'#000'}}
             placeholder="제품명을 입력해주세요."
             placeholderTextColor="#C9C9C9"
+            value={search}
+            onChangeText={text=>setSearch(text)}
           />
-          <Icon name="search" size={20} color="#477DD1"/>
+          <TouchableOpacity onPress={()=>getEstData()}>
+            <Icon name="search" size={20} color="#477DD1"/>
+          </TouchableOpacity>
         </View>
     </View>
   );
 };
 
-export const ChatHeader = ({title})=> {
+export const ChatHeader = ({title,setSearch,search,getChatList})=> {
 
   const {member} = useSelector(state => state.login)
 
@@ -418,7 +271,6 @@ export const ChatHeader = ({title})=> {
     try{
 
       const api = await API_CALL(url+params, form, false)
-      console.log(api)
       const { data } = api;
       const { item, result,message } = data;
       if(result === '0') return Alert.alert("제목",message)
@@ -450,7 +302,7 @@ export const ChatHeader = ({title})=> {
     }
     catch(e){
       console.log("change Error" ,e)
-      Alert.alert("제목","전환 실패 에러")
+      Alert.alert("","전환 실패 에러")
     }
   
   }
@@ -471,11 +323,15 @@ export const ChatHeader = ({title})=> {
             }}>
             <View style={{flex:1,marginRight:5,borderWidth:1,borderColor:'#eee',borderRadius:8,height:35,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingHorizontal: 10}}>
               <TextInput
-                style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontSize:13}}
+                style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontSize:13,color:'#000'}}
                 placeholder="제품명을 입력해주세요."
                 placeholderTextColor="#C9C9C9"
+                onChangeText={text=>setSearch(text)}
+                value={search}
               />
-              <Icon name="search" size={20} color="#477DD1"/>
+              <TouchableOpacity onPress={()=>getChatList()}>
+                <Icon name="search" size={20} color="#477DD1"/>
+              </TouchableOpacity>
             </View>
             <View style={{flexDirection:'row',backgroundColor:'#DEDEDE',borderRadius:8,width:120,height:35,justifyContent:'space-between',alignItems:'center'}}>
             <TouchableOpacity
@@ -494,7 +350,7 @@ export const ChatHeader = ({title})=> {
   );
 };
 
-export const ChatDetailHeader = ({title}) => {
+export const ChatDetailHeader = ({title,deal_id}) => {
   const navigation = useNavigation();
   return(
     <View>
@@ -507,11 +363,11 @@ export const ChatDetailHeader = ({title}) => {
         </TouchableOpacity>
       </View>
       <View style={{flexDirection:'row',}}>
-        <TouchableOpacity style={{flex:1,flexDirection:'row',justifyContent: 'space-between',alignItems:'center',height:48,backgroundColor: '#EBEBEB',paddingHorizontal:20,borderRightWidth:1,borderRightColor:'#fff'}}>
+        <TouchableOpacity style={{flex:1,flexDirection:'row',justifyContent: 'space-between',alignItems:'center',height:48,backgroundColor: '#EBEBEB',paddingHorizontal:20,borderRightWidth:1,borderRightColor:'#fff'}} onPress={()=>navigation.push('ProfileScreen',deal_id)}>
           <Text style={{fontSize:16,fontFamily:'NotoSansKR-Bold'}}>프로필 정보</Text>
           <Icon name="chevron-forward" size={20} color="#333"/>
         </TouchableOpacity>
-        <TouchableOpacity style={{flex:1,flexDirection:'row',justifyContent: 'space-between',alignItems:'center',height:48,backgroundColor: '#EBEBEB',paddingHorizontal:20,}}>
+        <TouchableOpacity style={{flex:1,flexDirection:'row',justifyContent: 'space-between',alignItems:'center',height:48,backgroundColor: '#EBEBEB',paddingHorizontal:20,}} onPress={()=>navigation.push('ScamPrevention')}>
           <Text style={{fontSize:16,fontFamily:'NotoSansKR-Bold'}}>사기 방지 가이드</Text>
           <Icon name="chevron-forward" size={20} color="#333"/>
         </TouchableOpacity>
@@ -528,7 +384,7 @@ export const MypageHeader = () => {
   );
 };
 
-export const ReviewHeader = ({title}) => {
+export const ReviewHeader = ({title,setSearch,search,getReviewList}) => {
 
 
   const {member} = useSelector(state => state.login)
@@ -586,7 +442,7 @@ export const ReviewHeader = ({title}) => {
     }
     catch(e){
       console.log("change Error" ,e)
-      Alert.alert("제목","전환 실패 에러")
+      Alert.alert("","전환 실패 에러")
     }
   
   }
@@ -635,18 +491,22 @@ export const ReviewHeader = ({title}) => {
         </View>
         <View style={{flex:2,borderWidth:1,borderColor:'#eee',borderRadius:8,height:35,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingHorizontal: 10}}>
               <TextInput
-                style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontSize:13,}}
+                style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontSize:13,color:'#000'}}
                 placeholder="제품명을 입력해주세요."
                 placeholderTextColor="#C9C9C9"
+                value={search}
+                onChangeText={text=>setSearch(text)}
               />
-              <Icon name="search" size={20} color="#477DD1"/>
+              <TouchableOpacity onPress={()=>getReviewList()}>
+                <Icon name="search" size={20} color="#477DD1"/>
+              </TouchableOpacity>
             </View>
       </View>
     </View>
   );
 };
 
-export const FavoriteHeader = ({title}) => {
+export const FavoriteHeader = ({title,search,setSearch,getZzimlist}) => {
   return(
     <View style={styles.header}>
       <DefaultHead/>
@@ -658,20 +518,25 @@ export const FavoriteHeader = ({title}) => {
         }}>
           <View style={{width:'100%',borderWidth:1,borderColor:'#eee',borderRadius:8,height:35,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingHorizontal: 10}}>
             <TextInput
-              style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontFamily:'NotoSansKR-Regular',fontSize:13,}}
+              style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontFamily:'NotoSansKR-Regular',fontSize:13,color:'#000'}}
               placeholder="제품명을 입력해주세요."
               placeholderTextColor="#C9C9C9"
+              value={search}
+              onChangeText={text=>setSearch(text)}
             />
-            <Icon name="search" size={20} color="#477DD1"/>
+              <TouchableOpacity onPress={()=>{getZzimlist()}}>
+              <Icon name="search" size={20} color="#477DD1"/>
+            </TouchableOpacity>
           </View>
         </View>
     </View>
   );
 };
-
-export const AppraiseHeader = ({title}) =>{
+const Appraisepicker=[{label:'제품명',value:'pt_title'},{label:'브랜드명',value:'brand'}]
+export function AppraiseHeader({title,search,setSearch,getappraiallist,setType}){
+  const navigation = useNavigation();
   return(
-    <View style={styles.header}>
+    <SafeAreaView>
       <DefaultHead/>
        <View style={{flexDirection:'row',justifyContent: 'center', alignItems:'center',backgroundColor: '#fff',height:62}}>
           <Text style={{fontSize:18,fontFamily:'NotoSansKR-Bold'}}>{title}</Text>
@@ -686,7 +551,9 @@ export const AppraiseHeader = ({title}) =>{
             borderRadius:8,
             justifyContent:'center',
             alignItems:'center'
-            }}>
+            }}
+            onPress={()=>navigation.push('AppraiseWrite')}
+            >
             <Text style={{
               fontSize:14,
               fontFamily:'NotoSansKR-Medium',
@@ -698,14 +565,13 @@ export const AppraiseHeader = ({title}) =>{
         <View 
         style={{
           flexDirection:'row',
-          backgroundColor:'#fff',
           paddingHorizontal:20,
           paddingBottom:10,
           width:'100%',
-          alignItems:'center'
+          alignItems:'center',
         }}>
-          <View style={{flex:4,marginRight:5,}}>
-             <DefaultPicker placeholder="제품명" />
+          <View style={{flex:4,marginRight:5}}>
+             <DefaultPicker placeholder="제품명" picker={Appraisepicker} onChange={setType}/>
           </View>
           <View style={{
             flexDirection:'row',
@@ -720,18 +586,20 @@ export const AppraiseHeader = ({title}) =>{
             <TextInput
             placeholder="제품명을 입력해주세요."
             placeholderTextColor="#C9C9C9"
-            style={{height:35,padding:0,paddingLeft:10,width:'80%'}}
+            style={{height:35,padding:0,paddingLeft:10,width:'80%',color:'#000'}}
+            value={search}
+            onChangeText={(text)=>setSearch(text)}
             />
-            <TouchableOpacity style={{width:30,}}>
+            <TouchableOpacity style={{width:30,}} onPress={()=>getappraiallist()}>
               <Icon name="search" size={24} color="#447DD1"/>
             </TouchableOpacity>
           </View>
         </View>
-    </View>
+    </SafeAreaView>
   );
 };
 
-export const RPHeader = ({title}) => {
+export const RPHeader = ({title,setSearch,getEnrollment,setSearchType}) => {
   return(
     <View style={styles.header, {zIndex:999}}>
         <DefaultHead/>
@@ -740,15 +608,19 @@ export const RPHeader = ({title}) => {
         </View>
       <View style={{width:'100%',height:45,backgroundColor:'#fff',flexDirection:'row',justifyContent:'space-between',alignItems:'center',paddingHorizontal:20}}>
         <View style={{flex:1,marginRight:5,}}>
-          <DefaultPicker picker={reviewPicker} placeholder="제품명"/>
+          <DefaultPicker picker={reviewPicker} placeholder="제품명" onChange={setSearchType}/>
         </View>
         <View style={{flex:2,borderWidth:1,borderColor:'#eee',borderRadius:8,height:35,flexDirection: 'row',justifyContent: 'space-between',alignItems: 'center',paddingHorizontal: 10}}>
               <TextInput
-                style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontSize:13,}}
+                style={{height:35,paddingVertical: 0,justifyContent:'center',flex:1,fontSize:13,color:'#000'}}
                 placeholder="제품명을 입력해주세요."
                 placeholderTextColor="#C9C9C9"
+                onChangeText={text=>setSearch(text)}
               />
-              <Icon name="search" size={20} color="#477DD1"/>
+              <TouchableOpacity
+              onPress={()=>getEnrollment()}>
+                <Icon name="search" size={20} color="#477DD1"/>
+              </TouchableOpacity>
             </View>
       </View>
     </View>
@@ -784,14 +656,14 @@ export const DefaultHead = () => {
             </TouchableOpacity>
         </View>
     </View>
-    <Modal visible={modalOpen} animationType="slide">
+    <Modal visible={modalOpen} animationType="slide" onRequestClose={()=>setModalOpen(false)}>
       <TouchableOpacity 
         style={{width:24,height:24,justifyContent:'center',alignItems:'center',alignSelf:'flex-end',marginRight:20,marginTop:20,}}
         onPress={() => setModalOpen(false)}
         >
             <Icon name="close" size={24} color="#AAAAAA"/>
       </TouchableOpacity>
-      <Search/>
+      <Search ModalOpenClose={setModalOpen}/>
     </Modal>
     </>
   );

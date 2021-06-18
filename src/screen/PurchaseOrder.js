@@ -14,9 +14,8 @@ import {
 import Postcode from '@actbase/react-daum-postcode';
 import {useSelector} from 'react-redux';
 import Header, {DetailHead} from '../components/header';
-import Footer from '../components/footer';
 import Product from '../components/product';
-import Selector, {DefaultPicker} from '../components/Select';
+import {DefaultPicker} from '../components/Select';
 import API_CALL from '../ApiCall';
 
 const location = [
@@ -46,7 +45,6 @@ const PurchaseOrder = props => {
   const [orderItem, setOrderItem] = useState({});
   const [postcode, setPostcode] = useState(false);
   const [orderAdd, setOrderAdd] = useState({});
-
   // 즉시구매
   const [mt_idx, setMt_idx] = useState(member.mt_idx);
   const [idx, setIdx] = useState(params.idx);
@@ -69,48 +67,82 @@ const PurchaseOrder = props => {
   const [ot_radd2, setOt_radd2] = useState('');
 
   //주문 폼
-  const [mdi_type, setMdi_type] = useState(location);
+  const [mdi_type, setMdi_type] = useState('');
   const [ot_rmemo, setOt_rmemo] = useState('');
   const [ot_pay_type, setOt_pay_type] = useState('');
   const [ot_price, setOt_price] = useState('');
   const [ot_delivery_charge, setOt_delivery_charge] = useState('');
-
+  const [newaddr,setNewAddr] = useState([]);
   useEffect(() => {
     getOrderItem();
+    getaddress();
   }, []);
-
+  useEffect(() => {
+    if(mdi_type=='1'||mdi_type=='2'||mdi_type=='3')checktype()
+  }, [mdi_type])
+  const checktype = () => {
+    if(mdi_type=='1'){
+      autowrite()
+    }else if(mdi_type=='2'){
+      setOt_rname(newaddr.ot_rname)
+      setOt_rtel(newaddr.ot_rtel)  
+      setOt_rhp(newaddr.ot_rhp)
+      setOt_rzip(newaddr.ot_rzip)
+      setOt_radd1(newaddr.ot_radd1)
+      setOt_radd2(newaddr.ot_radd2)
+    }else if(mdi_type=='3'){
+      setOt_rname('');
+      setOt_rtel('');  
+      setOt_rhp('');
+      setOt_rzip('');
+      setOt_radd1('');
+      setOt_radd2('');
+    }
+  }
+  const getaddress =async() =>{
+    const form = new FormData();
+    form.append('method', 'proc_member_delivery_info');
+    form.append('mt_idx', mt_idx);
+    const url = 'http://dmonster1566.cafe24.com';
+    const path = '/json/proc_json.php';
+    const api = await API_CALL(url + path, form, false);
+    const {
+      data: {method, result, message, count, item},
+    } = api;
+    if(result==='0')return Alert.alert('',message)
+    else if(result==='1'){
+      setNewAddr(item[0])
+    }
+    
+  }
   const getOrderItem = async () => {
     const form = new FormData();
 
     form.append('method', 'product_d_buy');
     form.append('mt_idx', mt_idx);
-    form.append('idx', idx);
-    // form.append('ot_code', ot_code);
-    // form.append('pt_title', pt_title);
-    // form.append('pt_image1', pt_image1);
-    // form.append('pt_price', pt_price);
-    // form.append('ct_delivery_default_price', ct_delivery_default_price);
-    // form.append('commission', commission);
-    // form.append('total_price', total_price);
-    // form.append('ct_delivery_type', ct_delivery_type);
-    // form.append('mt_sms_certify', mt_sms_certify);
-    // form.append('ot_rname', ot_rname);
-    // form.append('ot_rtel', ot_rtel);
-    // form.append('ot_rhp', ot_rhp);
-    // form.append('ot_rzip', ot_rzip);
-    // form.append('ot_radd1', ot_radd1);
-    // form.append('ot_radd2', ot_radd2);
-
+    form.append('idx', idx);  
     const url = 'http://dmonster1566.cafe24.com';
     const path = '/json/proc_json.php';
-
     const api = await API_CALL(url + path, form, false);
     const {
       data: {method, result, message, count, item},
     } = api;
-    setOrderItem(item[0]);
+    if(result==='0')return Alert.alert('',message)
+    else if(result==='1'){
+      props.route.params = {...props.route.params,...item[0]}
+      setOrderItem(item[0]);
+    }
+    
   };
-
+  const autowrite =() => {
+    setOt_rname(orderItem.ot_rname)
+    setOt_rtel(orderItem.ot_rtel)  
+    setOt_rhp(orderItem.ot_rhp)
+    setOt_rzip(orderItem.ot_rzip)
+    setOt_radd1(orderItem.ot_radd1)
+    setOt_radd2(orderItem.ot_radd2)
+    setOt_pay_type(orderItem.ct_delivery_type)
+  }
   const handleComplete = data => {
     let zipcode = data.zonecode;
     let fullAddress = data.address;
@@ -132,17 +164,11 @@ const PurchaseOrder = props => {
   };
   ///////////////////////////////////////////////////////////////////////////
 
-  //주문하기 폼
-
-  // useEffect(() => {
-  //   getOrderAdd();
-  // }, []);
-
   const OrderAdd = async () => {
     try {
       const form = new FormData();
       if (!orderItem && orderItem.length == 0)
-        return Alert.alert('orderItem null');
+        return Alert.alert('','주문번호를 확인해주세요.');
       form.append('method', 'proc_order_add');
       form.append('mt_idx', mt_idx);
       form.append('ot_code', orderItem.ot_code);
@@ -157,21 +183,27 @@ const PurchaseOrder = props => {
       form.append('ot_pay_type', ot_pay_type);
       form.append('ot_price', orderItem.total_price);
       form.append('ot_delivery_charge', orderItem.ct_delivery_default_price);
+      params.dealtype?form.append('pt_deal_type', params.dealtype):form.append('pt_deal_type', '즉시구매')
+      params.chat_ot_code?form.append('ot_code',params.chat_ot_code):orderItem.ot_code?form.append('ot_code',orderItem.ot_code):null
       const url = 'http://dmonster1566.cafe24.com';
       const path = '/json/proc_json.php';
       const api = await API_CALL(url + path, form, false);
       const {
         data: {method, result, message, count, item},
       } = api;
-      if (result === '0') return Alert.alert('no result');
+      if (result === '0') return Alert.alert('',message);
       if (result === '1') {
-        setOrderAdd(item[0]);
-        console.log('AddItem', item);
-        navigation.navigate('NewPrdList');
+        if(params&&params.dealtype){
+          Alert.alert('',message)
+          navigation.goBack();
+        }else{
+          Alert.alert('',message)
+          setOrderAdd(item[0]);
+          navigation.navigate('NewPrdList');
+        }
       }
     } catch (e) {
       console.log(e);
-      Alert.alert('Catch!');
     }
   };
 
@@ -206,7 +238,6 @@ const PurchaseOrder = props => {
                 marginBottom: 10,
               }}
               jsOptions={{animated: true}}
-              // onSelected={data => alert(JSON.stringify(data))}
               onSelected={handleComplete}
             />
           </View>
@@ -256,7 +287,8 @@ const PurchaseOrder = props => {
                 paddingHorizontal: 12,
                 paddingVertical: 6,
                 borderRadius: 8,
-              }}>
+              }}
+              onPress={()=>autowrite()}>
               <Text
                 style={{
                   fontSize: 12,
@@ -307,6 +339,7 @@ const PurchaseOrder = props => {
               placeholder="홍길동"
               placeholderTextColor="#C9C9C9"
               onChangeText={text => setOt_rname(text)}
+              value={ot_rname}
             />
           </View>
           <View style={styles.inputWrap}>
@@ -332,6 +365,7 @@ const PurchaseOrder = props => {
               placeholder="051-123-4567"
               keyboardType="numeric"
               placeholderTextColor="#C9C9C9"
+              value={ot_rtel}
             />
           </View>
           <View style={styles.inputWrap}>
@@ -357,6 +391,7 @@ const PurchaseOrder = props => {
               placeholder="010-1234-5678"
               keyboardType="numeric"
               placeholderTextColor="#C9C9C9"
+              value={ot_rhp}
             />
           </View>
           <View style={styles.inputWrap}>
@@ -483,7 +518,7 @@ const PurchaseOrder = props => {
                     fontFamily: 'NotoSansKR-Regular',
                     lineHeight: 20,
                   }}>
-                  택배거래
+                  {params&&params.dealtype?'안전거래':'택배거래'}
                 </Text>
               </View>
               <View style={styles.payinfo}>
@@ -551,7 +586,7 @@ const PurchaseOrder = props => {
                 </Text>
                 <View style={{width: 150}}>
                   <DefaultPicker
-                    placeholder="신용카드"
+                    placeholder="결제 수단 선택"
                     picker={payment}
                     onChange={setOt_pay_type}
                   />

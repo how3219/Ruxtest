@@ -25,10 +25,12 @@ const FavoriteList = ({navigation}) => {
     getZzimlist();
   }, []);
   const {member} = useSelector(state => state.login);
+  const [search,setSearch] = useState('');
   const getZzimlist = async () => {
     const form = new FormData();
     form.append('method', 'proc_myzzim_list');
     form.append('mt_id', member.mt_idx);
+    search&&form.append('search', search);
     const url = 'http://dmonster1566.cafe24.com';
     const path = '/json/proc_json.php';
     const api = await API_CALL(url + path, form, false);
@@ -36,7 +38,7 @@ const FavoriteList = ({navigation}) => {
       data: {item, result},
     } = api;
     // console.log(item);
-    if (result === '0') return Alert.alert('no result');
+    if (result === '0') return;
     if (result === '1') {
       setFavitem(item);
       console.log('AddItem', item);
@@ -61,12 +63,12 @@ const FavoriteList = ({navigation}) => {
       }
     } catch {
       console.log(e);
-      Alert.alert('favoritelist catch');
+      
     }
   };
   return (
     <SafeAreaView style={{flex: 1, backgroundColor: '#fff '}}>
-      <FavoriteHeader title="찜 목록" />
+      <FavoriteHeader title="찜 목록" search={search} setSearch={setSearch} getZzimlist={getZzimlist}/>
       <FlatList
         numColumns={1}
         keyExtractor={item => item.pm_id}
@@ -85,7 +87,8 @@ const FavoriteList = ({navigation}) => {
                 paddingBottom: 10,
                 paddingTop: 15,
               }}
-              onPress={() => navigation.navigate('PrdDetail')}>
+              onPress={() => navigation.navigate('PrdDetail',{idx:item.pt_idx})}
+              >
               <View
                 style={{
                   width: Box,

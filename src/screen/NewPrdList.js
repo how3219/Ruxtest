@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -14,18 +14,19 @@ import {
   ScrollView,
 } from 'react-native';
 
-import Header, {DefaultHead} from '../components/header';
-import {DefaultPicker} from '../components/Select';
+import Header, { DefaultHead } from '../components/header';
+import { DefaultPicker } from '../components/Select';
 import {
   FtrBrand,
-  FtrCategory,
   FtrType,
   FtrPrice,
+  Category2,
+  Category3
 } from '../components/filterItem';
 
 import Icon from 'react-native-vector-icons/Ionicons';
-import {useNavigation} from '@react-navigation/native';
-import {useDispatch, useSelector} from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import API_CALL from '../ApiCall';
 import AsyncStorage from '@react-native-community/async-storage';
 
@@ -38,15 +39,14 @@ const HashWidth = Width - Box - PADDING * 2 - 10;
 
 const NewPrdList = props => {
   const [modalOpen, setModalOpen] = useState(false);
-
+  const { category1 } = useSelector(state => state.categorys);
   const dispatch = useDispatch();
 
   //   const {route} = props
-  const {navigation} = props;
+  const { navigation } = props;
   //   const {params} = route
-  const {member} = useSelector(state => state.login);
+  const { member } = useSelector(state => state.login);
   //   console.log('params',params)
-
   // 상품 리스트
   const [mt_idx, setMt_idx] = useState(member.mt_idx);
   const [ct_pid, setCt_pid] = useState([]);
@@ -67,44 +67,22 @@ const NewPrdList = props => {
   const [newitem, setNewitem] = useState([]);
 
   const [filterItem, setFilterItem] = useState([]);
-  const {category1, category2} = useSelector(state => state.categorys);
-  useEffect(() => {
-    getFilter();
-  }, []);
-  useEffect(() => {
-    if (filterItem && filterItem.length !== 0) {
-      getNewItem();
-    }
-  }, [filterItem]);
-  const getNewItem = async () => {
-    // console.log(50505050, filterItem);
-    const form = new FormData();
-    console.log(765765, filterItem);
-    form.append('method', 'proc_main_new_list');
-    // form.append('mt_idx', mt_idx);
-    // form.append('ct_pid', ct_pid);
-    // form.append('ct_id', ct_id);
-    // form.append('ct_id2', ct_id2);
-    // form.append('pt_order_by', pt_order_by);
-    // form.append('idx', idx);
-    // form.append('search', search);
-    // form.append('pt_title', pt_title);
-    // form.append('pt_image1', pt_image1);
-    // form.append('pt_selling_price', pt_selling_price);
-    // form.append('pt_selling_edate', pt_selling_edate);
-    // form.append('dday', dday);
-    // form.append('pt_tag_list', pt_tag_list);
-    // form.append('pt_tag', pt_tag);
-    // form.append('zzim_yn', zzim_yn);
 
+
+  useEffect(() => {
+    getNewItem();
+  }, []);
+  const getNewItem = async () => {
+    const form = new FormData();
+    form.append('method', 'proc_main_new_list');
     const url = 'http://dmonster1566.cafe24.com';
     const path = '/json/proc_json.php';
     try {
       const api = await API_CALL(url + path, form, true);
       const {
-        data: {item, result},
+        data: { item, result },
       } = api;
-      if (result === '0') return Alert.alert('제목', '상품이 없습니다.');
+      if (result === '0') return Alert.alert('', '상품이 없습니다.');
       if (result === '1') {
         // const savePrd = {
         //   method: 'proc_product_list',
@@ -129,35 +107,46 @@ const NewPrdList = props => {
       }
     } catch (e) {
       console.log(e);
-      Alert.alert('제목', '상품을 불러오지 못했습니다');
+      
     }
-
-    // const itemConvert = item.map((v, _) => {
-    //   return {
-
-    //     ...v,
-    //     pt_tag_list : v.pt_tag_list === '' ? [] : v.pt_tag_list,
-    //   }
-    // })
-    // console.log("a",itemConvert)
   };
-  console.log('newItem', newitem);
 
   //필터
-  const [bidx, setBidx] = useState('-');
+  const [bidx, setBidx] = useState('');
   const [fct_id, setFct_id] = useState('');
   const [fct_id2, setFct_id2] = useState('');
   const [fct_id3, setFct_id3] = useState('');
-  const [pt_deal_type, setPt_deal_type] = useState('-');
-  const [pt_deal_price, setPt_deal_price] = useState('-');
+  const [fct_id3_list, setFct_id3_List] = useState('');
+  const [pt_deal_type, setPt_deal_type] = useState('');
+  const [pt_deal_price, setPt_deal_price] = useState('');
+  const [selectdealtype, setSelectDealType] = useState([])
+  const customSetDealType = (value) => {
+    let result = Object.assign([], selectdealtype);
+    selectdealtype.length === 0 || selectdealtype.indexOf(value) === -1 ?
+      result.push(value) :
+      result = result.filter((val) => {
+        return val !== value
+      })
+    setSelectDealType(result)
+  }
 
+  const resetState = () => {
+    setFct_id('')
+    setFct_id2('')
+    setFct_id3('')
+    setFct_id3_List('')
+    setPt_deal_price('')
+    setSelectDealType([])
+    setBidx('')
+  }
   const getFilter = async () => {
     const form = new FormData();
+    console.log(member)
     form.append('method', 'proc_filter');
-    form.append('mt_idx', mt_idx);
+    form.append('mt_idx', member.mt_idx);
     bidx !== '-' && form.append('bidx', bidx);
-    pt_deal_type !== '-' && form.append('pt_deal_type', pt_deal_type);
-    pt_deal_price !== '-' && form.append('pt_deal_price', pt_deal_price);
+    !selectdealtype && form.append('pt_deal_type', selectdealtype);
+    !pt_deal_price && form.append('pt_deal_price', pt_deal_price);
     form.append('ct_pid', fct_id);
     form.append('ct_id', fct_id2);
     form.append('ct_id2', fct_id3);
@@ -169,38 +158,35 @@ const NewPrdList = props => {
     form.append('dday', dday);
     form.append('pt_tag_list', pt_tag_list);
     form.append('zzim_yn', zzim_yn);
-
     const url = 'http://dmonster1566.cafe24.com';
     const path = '/json/proc_json.php';
-
     try {
       const api = await API_CALL(url + path, form, true);
-      console.log(api);
-      const {data} = api;
-      const {item, result} = data;
-      if (result === '0') return Alert.alert('', 'no result');
+      const { data } = api;
+      const { item, result, message } = data;
+      if (result === '0') return Alert.alert('', message);
       if (result === '1') {
-        dispatch({
-          type: 'FILTER_SELECT',
-          payload: item[0],
-        });
-        setFilterItem(item);
+        // dispatch({
+        //   type: 'FILTER_SELECT',
+        //   payload: item[0],
+        // });
+        setNewitem(item);
       }
     } catch (e) {
       console.log(e);
-      Alert.alert('', '오류');
+      
     }
   };
 
   const prdPicker = [
-    {label: '전체', value: ''},
-    {label: '인기순', value: 'hit'},
-    {label: '최신순', value: 'new'},
+    { label: '전체', value: '' },
+    { label: '인기순', value: 'hit' },
+    { label: '최신순', value: 'new' },
   ];
 
   return (
-    <View style={{flex: 1, backgroundColor: '#fff'}}>
-      <View style={{backgroundColor: '#fff', width: '100%', zIndex: 999}}>
+    <View style={{ flex: 1, backgroundColor: '#fff' }}>
+      <View style={{ backgroundColor: '#fff', width: '100%', zIndex: 999 }}>
         <DefaultHead />
         <View
           style={{
@@ -213,7 +199,7 @@ const NewPrdList = props => {
             borderBottomColor: '#eee',
             borderBottomWidth: 1,
           }}>
-          <View style={{width: 100, marginRight: 5}}>
+          <View style={{ width: 100, marginRight: 5 }}>
             <DefaultPicker picker={prdPicker} placeholder="인기상품순" />
           </View>
           <View
@@ -237,12 +223,15 @@ const NewPrdList = props => {
                 lineHeight: 14,
                 padding: 0,
                 flex: 1,
+                color:'#000'
               }}
               placeholderTextColor={'#C9C9C9'}
+              value={search}
+              onChangeText={text=>setSearch(text)}
             />
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=>getNewItem()}>
               <Image
-                style={{resizeMode: 'contain', width: 20}}
+                style={{ resizeMode: 'contain', width: 20 }}
                 source={require('../images/img_hd01.png')}
               />
             </TouchableOpacity>
@@ -268,9 +257,9 @@ const NewPrdList = props => {
               }}>
               필터
             </Text>
-            <View style={{width: 12}}>
+            <View style={{ width: 12 }}>
               <Image
-                style={{resizeMode: 'contain', width: '100%'}}
+                style={{ resizeMode: 'contain', width: '100%' }}
                 source={require('../images/ico_filter.png')}
               />
             </View>
@@ -280,8 +269,8 @@ const NewPrdList = props => {
           visible={modalOpen}
           animationType={'slide'}
           transparent={true}
-          style={{flex: 1}}
-          onRequestClose={() => setModalOpen(false)}>
+          style={{ flex: 1 }}
+          onRequestClose={() => { resetState(), setModalOpen(false) }}>
           <View
             style={{
               position: 'absolute',
@@ -310,7 +299,7 @@ const NewPrdList = props => {
                   }}>
                   쇼핑몰 필터
                 </Text>
-                <View style={{paddingBottom: 30}}>
+                <View style={{ paddingBottom: 30 }}>
                   <Text
                     style={{
                       fontFamily: 'NotoSansKR-Medium',
@@ -318,16 +307,16 @@ const NewPrdList = props => {
                       fontSize: 14,
                     }}>
                     브랜드
-                    <Text style={{fontSize: 12, color: '#B7B7B7'}}>
+                    <Text style={{ fontSize: 12, color: '#B7B7B7' }}>
                       {' '}
                       (선택1)
                     </Text>
                   </Text>
-                  <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                    <FtrBrand />
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                    <FtrBrand bidx={bidx} setBidx={setBidx} />
                   </View>
                 </View>
-                <View style={{paddingBottom: 30}}>
+                <View style={{ paddingBottom: 30 }}>
                   <Text
                     style={{
                       fontFamily: 'NotoSansKR-Medium',
@@ -335,32 +324,20 @@ const NewPrdList = props => {
                       fontSize: 14,
                     }}>
                     카테고리 1
-                    <Text style={{fontSize: 12, color: '#B7B7B7'}}>
+                    <Text style={{ fontSize: 12, color: '#B7B7B7' }}>
                       {' '}
                       (선택1)
                     </Text>
                   </Text>
-                  <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
                     {category1?.map((item1, i) => (
                       <TouchableOpacity
-                        onPress={() =>
-                          setFct_id(
-                            category1.map(data => {
-                              if (data.id === item1.id) {
-                                return {...data, state: true};
-                              } else {
-                                return {...data, state: false};
-                              }
-                            }),
-                          )
-                        }
+                        onPress={() => {setFct_id(fct_id === item1.ct_id ? null : item1.ct_id),setFct_id2(''),setFct_id3('')}}
                         key={i}
                         style={{
                           borderWidth: 1,
-                          borderColor:
-                            item1.state === false ? '#eee' : '#447DD1',
-                          backgroundColor:
-                            item1.state === false ? '#fff' : '#447DD1',
+                          borderColor: item1.ct_id !== fct_id ? '#eee' : '#447DD1',
+                          backgroundColor: item1.ct_id !== fct_id ? '#fff' : '#447DD1',
                           borderRadius: 8,
                           paddingHorizontal: 20,
                           paddingVertical: 10,
@@ -372,7 +349,7 @@ const NewPrdList = props => {
                             fontSize: 13,
                             fontFamily: 'NotoSansKR-Medium',
                             lineHeight: 18,
-                            color: item1.state === false ? '#447DD1' : '#fff',
+                            color: item1.ct_id !== fct_id ? '#447DD1' : '#fff',
                           }}>
                           {item1.ct_name}
                         </Text>
@@ -380,68 +357,49 @@ const NewPrdList = props => {
                     ))}
                   </View>
                 </View>
-                <View style={{paddingBottom: 30}}>
-                  <Text
-                    style={{
-                      fontFamily: 'NotoSansKR-Medium',
-                      color: '#999999',
-                      fontSize: 14,
-                    }}>
-                    카테고리 2
-                    <Text style={{fontSize: 12, color: '#B7B7B7'}}>
-                      {' '}
+                {
+                  fct_id ?
+                  <View style={{ paddingBottom: 30 }}>
+                    <Text
+                      style={{
+                        fontFamily: 'NotoSansKR-Medium',
+                        color: '#999999',
+                        fontSize: 14,
+                      }}>
+                      카테고리 2
+                    <Text style={{ fontSize: 12, color: '#B7B7B7' }}>
+                        {' '}
                       (선택1)
                     </Text>
-                  </Text>
-                  <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                    {category2 &&
-                      category2.map((item2, i) => (
-                        <TouchableOpacity
-                          key={i}
+                    </Text>
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                      <Category2 ct_pid={fct_id} setFct_id2={setFct_id2} fct_id2={fct_id2} setFct_id3={setFct_id3} setFct_id3_List={setFct_id3_List} fct_id3={fct_id3}/>
+                    </View>
+                  </View>:null
+                }
+                <View style={{ paddingBottom: 30 }}>
+                  {
+                    fct_id3_list ?
+                      <>
+                        <Text
                           style={{
-                            borderWidth: 1,
-                            borderColor: '#eee',
-                            borderRadius: 8,
-                            paddingHorizontal: 20,
-                            paddingVertical: 10,
-                            marginRight: 5,
-                            marginBottom: 5,
+                            fontFamily: 'NotoSansKR-Medium',
+                            color: '#999999',
+                            fontSize: 14,
                           }}>
-                          <Text
-                            style={{
-                              fontSize: 13,
-                              fontFamily: 'NotoSansKR-Medium',
-                              lineHeight: 18,
-                            }}>
-                            {item2.ct_name2}
-                          </Text>
-                        </TouchableOpacity>
-                      ))}
-                  </View>
-                </View>
-                <View style={{paddingBottom: 30}}>
-                  <Text
-                    style={{
-                      fontFamily: 'NotoSansKR-Medium',
-                      color: '#999999',
-                      fontSize: 14,
-                    }}>
-                    카테고리 3
-                    <Text style={{fontSize: 12, color: '#B7B7B7'}}>
-                      {' '}
+                          카테고리 3
+                    <Text style={{ fontSize: 12, color: '#B7B7B7' }}>
+                            {' '}
                       (선택1)
                     </Text>
-                  </Text>
-                  <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                    {category2.ct3_list &&
-                      category2.ct3_list.map((item3, i) => (
-                        <TouchableOpacity key={i}>
-                          <Text>{item3.ct_name3}</Text>
-                        </TouchableOpacity>
-                      ))}
-                  </View>
+                        </Text>
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                          <Category3 setFct_id3={setFct_id3} fct_id3={fct_id3} fct_id3_list={fct_id3_list} />
+                        </View>
+                      </> : null
+                  }
                 </View>
-                <View style={{paddingBottom: 30}}>
+                <View style={{ paddingBottom: 30 }}>
                   <Text
                     style={{
                       fontFamily: 'NotoSansKR-Medium',
@@ -450,11 +408,11 @@ const NewPrdList = props => {
                     }}>
                     거래유형
                   </Text>
-                  <View style={{flexDirection: 'row', flexWrap: 'wrap'}}>
-                    <FtrType />
+                  <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+                    <FtrType customSetDealType={customSetDealType} pt_deal_type={pt_deal_type} selectdealtype={selectdealtype} />
                   </View>
                 </View>
-                <View style={{marginBottom: 10}}>
+                <View style={{ marginBottom: 10 }}>
                   <Text
                     style={{
                       fontFamily: 'NotoSansKR-Medium',
@@ -463,8 +421,8 @@ const NewPrdList = props => {
                     }}>
                     가격대
                   </Text>
-                  <View style={{flex: 1}}>
-                    <FtrPrice />
+                  <View style={{ flex: 1 }}>
+                    <FtrPrice setPt_deal_price={setPt_deal_price} pt_deal_price={pt_deal_price} />
                   </View>
                 </View>
                 <View
@@ -475,20 +433,22 @@ const NewPrdList = props => {
                     paddingBottom: 20,
                   }}>
                   <TouchableOpacity
-                    style={{flexDirection: 'row', alignItems: 'center'}}>
+                    style={{ flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => resetState()}
+                  >
                     <Icon
                       name="refresh-outline"
                       size={20}
                       color="#444"
-                      style={{marginRight: 5}}
+                      style={{ marginRight: 5 }}
                     />
                     <Text
-                      style={{fontSize: 13, fontFamily: 'NotoSansKR-Medium'}}>
+                      style={{ fontSize: 13, fontFamily: 'NotoSansKR-Medium' }}>
                       필터 초기화
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
-                    onPress={() => setModalOpen(false)}
+                    onPress={() => { getFilter(), setModalOpen(false) }}
                     style={{
                       backgroundColor: '#447DD1',
                       height: 45,
@@ -512,11 +472,11 @@ const NewPrdList = props => {
           </View>
         </Modal>
       </View>
-      <View style={{paddingHorizontal: PADDING, flex: 1}}>
+      <View style={{ paddingHorizontal: PADDING, flex: 1 }}>
         <FlatList
           data={newitem}
-          style={{flex: 1, alignSelf: 'center'}}
-          renderItem={({item, index}) => <PrdItem item={item} />}
+          style={{ flex: 1, alignSelf: 'center' }}
+          renderItem={({ item, index }) => <PrdItem item={item} />}
           keyExtractor={item => `${item.idx}`}
           numColumns={1}
         />
@@ -537,7 +497,7 @@ const NewPrdList = props => {
 //   );
 // };
 
-function PrdItem({item}) {
+function PrdItem({ item }) {
   console.log('prd', item);
 
   const [fav, setFav] = useState('off');
@@ -555,7 +515,7 @@ function PrdItem({item}) {
         paddingBottom: 10,
         paddingTop: 15,
       }}
-      onPress={() => navigation.navigate('PrdDetail')}>
+      onPress={() => navigation.navigate('PrdDetail', { idx: item.idx })}>
       <View
         style={{
           width: Box,
@@ -567,11 +527,11 @@ function PrdItem({item}) {
           padding: 10,
         }}>
         <Image
-          style={{resizeMode: 'cover', width: '100%', height: '100%'}}
-          source={{uri: item.pt_image1}}
+          style={{ resizeMode: 'cover', width: '100%', height: '100%' }}
+          source={{ uri: item.pt_image1 }}
         />
       </View>
-      <View style={{flexGrow: 1}}>
+      <View style={{ flexGrow: 1 }}>
         <View
           style={{
             flexDirection: 'row',
@@ -589,15 +549,6 @@ function PrdItem({item}) {
             numberOfLines={1}>
             {item.pt_title}
           </Text>
-          {/* <TouchableWithoutFeedback>
-            <Image
-              source={
-                fav === 'off'
-                  ? require('../images/heart_no.png')
-                  : require('../images/heart.png')
-              }
-            />
-          </TouchableWithoutFeedback> */}
         </View>
         <Text
           style={{
@@ -608,7 +559,7 @@ function PrdItem({item}) {
             paddingBottom: 5,
           }}>
           즉시구매{' '}
-          <Text style={{fontFamily: 'NotoSansKR-Regular', color: '#555'}}>
+          <Text style={{ fontFamily: 'NotoSansKR-Regular', color: '#555' }}>
             {item.pt_selling_price}원
           </Text>
         </Text>
@@ -620,7 +571,7 @@ function PrdItem({item}) {
             lineHeight: 15,
           }}>
           견적 마감{' '}
-          <Text style={{fontFamily: 'NotoSansKR-Regular', color: '#555'}}>
+          <Text style={{ fontFamily: 'NotoSansKR-Regular', color: '#555' }}>
             {item.dday}일 전
           </Text>
         </Text>
@@ -631,26 +582,25 @@ function PrdItem({item}) {
             marginTop: 10,
             width: HashWidth,
           }}>
-          <Text style={styles.hashtag}>asda</Text>
         </View>
       </View>
     </TouchableOpacity>
   );
 }
 
-const styles = StyleSheet.create({
-  hashtag: {
-    backgroundColor: '#F8F8F8',
-    fontSize: 10,
-    fontFamily: 'NotoSansKR-Medium',
-    lineHeight: 15,
-    paddingVertical: 3,
-    paddingHorizontal: 6,
-    borderRadius: 7,
-    color: '#707070',
-    marginRight: 4,
-    marginBottom: 4,
-  },
-});
+// const styles = StyleSheet.create({
+//   hashtag: {
+//     backgroundColor: '#F8F8F8',
+//     fontSize: 10,
+//     fontFamily: 'NotoSansKR-Medium',
+//     lineHeight: 15,
+//     paddingVertical: 3,
+//     paddingHorizontal: 6,
+//     borderRadius: 7,
+//     color: '#707070',
+//     marginRight: 4,
+//     marginBottom: 4,
+//   },
+// });
 
 export default NewPrdList;
