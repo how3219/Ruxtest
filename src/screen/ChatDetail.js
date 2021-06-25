@@ -7,6 +7,8 @@ import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useIsFocused } from '@react-navigation/native';
 import { DefaultPicker } from '../components/Select';
+import DocumentPicker from 'react-native-document-picker';
+
 const Width = Dimensions.get('window').width;
 const Height = Dimensions.get('window').height;
 const PADDING = 20;

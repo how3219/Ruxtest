@@ -105,7 +105,6 @@ export const NewPrd = () => {
 function RvItem({rvItem}){
     const [starlist,setStarList] = useState(new Array(5).fill(0))
     const navigation = useNavigation(); 
-    console.log(55555555,rvItem)
     return(
         <TouchableOpacity style={{
             backgroundColor:'#F1F1F1',

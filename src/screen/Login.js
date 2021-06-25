@@ -158,7 +158,9 @@ const Login = ({navigation}) => {
     
       const appleLogin = async () => {
         try {
-            if(Platform.OS!=='ios')return Alert.alert('','ios가 아닙니다.')
+            if(Platform.OS!=='ios'){return Alert.alert('','ios가 아닙니다.')}
+            else {return Alert.alert('진행중')}
+
           const appleAuthRequestResponse = await appleAuth.performRequest({
             requestedOperation: appleAuth.Operation.LOGIN,        
             requestedScopes: [appleAuth.Scope.EMAIL],

@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import {View, Text, StatusBar,Dimensions,Alert} from 'react-native';
+import {View, Text, StatusBar,Dimensions,Alert,Platform} from 'react-native';
 import SplashScreen from 'react-native-splash-screen';
 
 import {NavigationContainer} from '@react-navigation/native';
@@ -55,7 +55,8 @@ const toastConfig = {
     )
 }
 messaging().onMessage(async remoteMessage => {
-  Alert.alert('', JSON.stringify(remoteMessage.data.message));
+  if(Platform.OS!=='ios')return Alert.alert('', JSON.stringify(remoteMessage.data.message));
+  else if(Platform.OS==='ios'){return Alert.alert('',JSON.stringify(remoteMessage.notification.title))}
 });
 
 const App = () => {
